@@ -1,3 +1,6 @@
+# macOS
+.DS_Store
+
 # Prerequisites
 *.d
 
@@ -53,3 +56,9 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# build files
+firmware/build/
+
+# pdfs
+*.pdf
