@@ -1,0 +1,41 @@
+<mxfile host="65bd71144e">
+    <diagram name="Seite-1" id="kesWL22Z_LJd6C3Pg_Li">
+        <mxGraphModel dx="504" dy="1118" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="IPpIHKp639-C-VXD9wrQ-1" target="IPpIHKp639-C-VXD9wrQ-8" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-1" value="READY_FOR&lt;div&gt;_CARD&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="220" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;curved=1;" parent="1" source="IPpIHKp639-C-VXD9wrQ-6" target="IPpIHKp639-C-VXD9wrQ-1" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="570" y="250"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-6" value="WAIT_FOR_&lt;div&gt;CARD_REMOVAL&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="480" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" parent="1" source="IPpIHKp639-C-VXD9wrQ-8" target="IPpIHKp639-C-VXD9wrQ-6" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-8" value="PROCESS&lt;div&gt;_UID&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="280" y="340" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-20" value="card removed" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="570" y="350" width="70" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-23" value="card detected" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="295" width="60" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="IPpIHKp639-C-VXD9wrQ-31" value="&lt;div&gt;hand over&lt;/div&gt;UID to lock process" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" parent="1" vertex="1">
+                    <mxGeometry x="340" y="425" width="120" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
