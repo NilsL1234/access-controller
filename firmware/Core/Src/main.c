@@ -94,18 +94,88 @@ int main(void)
   /* Initialize leds */
   BSP_LED_Init(LED2);
 
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+
+//Debounce
+static const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
+
+GPIO_PinState AcceptedPinState = GPIO_PIN_SET; 
+GPIO_PinState PreviousRawPinState = GPIO_PIN_SET;
+GPIO_PinState CurrentPinState = GPIO_PIN_SET;
+
+
+
+uint32_t StartTime = 0U;
+
+uint16_t B0_Pin = 0x0001;
+uint32_t Counter = 0U;
+
+
+// HAL_GetTick() gives me current time
+// How much time has passed since switch from HIGH to LOW
+// first low, set Start time to now; reset when current is not LOW
   while (1)
   {
+
+    // GPIO debounce:
+
+    //TODO: 
+
+    // check current state
+    if((GPIOB->IDR & B0_Pin) == 0U)
+    {
+      CurrentPinState = GPIO_PIN_RESET;
+    }
+    else
+    {
+      CurrentPinState = GPIO_PIN_SET;
+    }
+
+    if(CurrentPinState != PreviousRawPinState)
+    {
+      StartTime = HAL_GetTick();
+    }
+
+    if(((HAL_GetTick() - StartTime) >= DEBOUNCE_TIME_INTERVAL) && (CurrentPinState != AcceptedPinState)) 
+    {
+      AcceptedPinState = CurrentPinState;
+
+      if (AcceptedPinState == GPIO_PIN_RESET)
+        {
+          ++Counter;
+        } 
+    }
+
+      PreviousRawPinState = CurrentPinState;
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+  
+  
+    /*
+    // GPIO input controls GPIO output:
+    // Control LED2 with button (B1)
+    //    button is active low!
+    //    if button is pushed, set led ODR with BSRR
+    
+    if((B1_GPIO_Port->IDR) & B1_Pin)
+      {
+        
+        GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
+
+      }
+      else { 
+      
+        GPIOA->BSRR = (uint32_t)LED2_PIN;
+
+      }
+
+    */
   }
+
   /* USER CODE END 3 */
 }
 
@@ -176,8 +246,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
-  //GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;  /Test: change me back on
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
@@ -188,6 +257,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
