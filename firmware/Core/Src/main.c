@@ -99,18 +99,25 @@ int main(void)
 
 
 //Debounce
-static const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
+
+const uint16_t B0_Pin = 0x0001;
+const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
+const uint32_t LED2_TIME_INTERVAL = 2000U;
 
 GPIO_PinState AcceptedPinState = GPIO_PIN_SET; 
 GPIO_PinState PreviousRawPinState = GPIO_PIN_SET;
 GPIO_PinState CurrentPinState = GPIO_PIN_SET;
 
+bool LED2On = false;
 
 
-uint32_t StartTime = 0U;
 
-uint16_t B0_Pin = 0x0001;
+uint32_t StartTimeDebounce = 0U;
+uint32_t StartTimeLed2On = 0U;
+
 uint32_t Counter = 0U;
+
+
 
 
 // HAL_GetTick() gives me current time
@@ -121,9 +128,7 @@ uint32_t Counter = 0U;
 
     // GPIO debounce:
 
-    //TODO: 
-
-    // check current state
+    // check current state B0
     if((GPIOB->IDR & B0_Pin) == 0U)
     {
       CurrentPinState = GPIO_PIN_RESET;
@@ -132,21 +137,38 @@ uint32_t Counter = 0U;
     {
       CurrentPinState = GPIO_PIN_SET;
     }
-
+    
+    // start clock on state change B0
     if(CurrentPinState != PreviousRawPinState)
     {
-      StartTime = HAL_GetTick();
+      StartTimeDebounce = HAL_GetTick();
     }
 
-    if(((HAL_GetTick() - StartTime) >= DEBOUNCE_TIME_INTERVAL) && (CurrentPinState != AcceptedPinState)) 
+    // new pin state B0 accepted
+    if(((HAL_GetTick() - StartTimeDebounce) >= DEBOUNCE_TIME_INTERVAL) && (CurrentPinState != AcceptedPinState)) 
     {
       AcceptedPinState = CurrentPinState;
 
       if (AcceptedPinState == GPIO_PIN_RESET)
         {
           ++Counter;
+          
+          if(!LED2On)
+          {
+            GPIOA->BSRR = (uint32_t)LED2_PIN;
+            StartTimeLed2On = HAL_GetTick();
+            LED2On = true;
+          }
+          
         } 
     }
+
+    // turn of led after time interval
+    if(((HAL_GetTick() - StartTimeLed2On) >= LED2_TIME_INTERVAL) && (LED2On == true))
+      {
+        GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
+        LED2On = false;
+      }
 
       PreviousRawPinState = CurrentPinState;
 
