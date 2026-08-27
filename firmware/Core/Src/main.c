@@ -21,6 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdbool.h>
+#include "button.h"
 
 /* USER CODE END Includes */
 
@@ -100,68 +102,52 @@ int main(void)
 
 //Debounce
 
-const uint16_t B0_Pin = 0x0001;
 const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
 const uint32_t LED2_TIME_INTERVAL = 2000U;
 
 GPIO_PinState AcceptedPinState = GPIO_PIN_SET; 
-GPIO_PinState PreviousRawPinState = GPIO_PIN_SET;
-GPIO_PinState CurrentPinState = GPIO_PIN_SET;
 
 bool LED2On = false;
 
 
 
-uint32_t StartTimeDebounce = 0U;
+//uint32_t StartTimeDebounce = 0U;
 uint32_t StartTimeLed2On = 0U;
 
 uint32_t Counter = 0U;
 
-
-
-
 // HAL_GetTick() gives me current time
-// How much time has passed since switch from HIGH to LOW
-// first low, set Start time to now; reset when current is not LOW
+
+// Push of button starts LED (for 2 seconds)
+
   while (1)
   {
-
     // GPIO debounce:
 
-    // check current state B0
-    if((GPIOB->IDR & B0_Pin) == 0U)
-    {
-      CurrentPinState = GPIO_PIN_RESET;
-    }
-    else
-    {
-      CurrentPinState = GPIO_PIN_SET;
-    }
-    
-    // start clock on state change B0
-    if(CurrentPinState != PreviousRawPinState)
-    {
-      StartTimeDebounce = HAL_GetTick();
-    }
+    // deactivate interrupt to avoid race condition / critical section
+    // todo: safe both time and state to have shorter crit sec would be cleaner
+    NVIC->ICER[0] = 1U << EXTI0_IRQn;
 
-    // new pin state B0 accepted
-    if(((HAL_GetTick() - StartTimeDebounce) >= DEBOUNCE_TIME_INTERVAL) && (CurrentPinState != AcceptedPinState)) 
+    // new pin state B0 accepted 
+    if(((HAL_GetTick() - GetStartTimeDebounce()) >= DEBOUNCE_TIME_INTERVAL) && (GetCurrentPinState() != AcceptedPinState)) 
     {
-      AcceptedPinState = CurrentPinState;
+      AcceptedPinState = GetCurrentPinState();
 
       if (AcceptedPinState == GPIO_PIN_RESET)
         {
           ++Counter;
-          
+
           if(!LED2On)
           {
             GPIOA->BSRR = (uint32_t)LED2_PIN;
             StartTimeLed2On = HAL_GetTick();
             LED2On = true;
-          }
-          
+          }        
         } 
     }
+
+    // Activate interrupt again
+    NVIC->ISER[0] = 1U << EXTI0_IRQn;
 
     // turn of led after time interval
     if(((HAL_GetTick() - StartTimeLed2On) >= LED2_TIME_INTERVAL) && (LED2On == true))
@@ -169,8 +155,6 @@ uint32_t Counter = 0U;
         GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
         LED2On = false;
       }
-
-      PreviousRawPinState = CurrentPinState;
 
     /* USER CODE END WHILE */
 
@@ -197,7 +181,6 @@ uint32_t Counter = 0U;
 
     */
   }
-
   /* USER CODE END 3 */
 }
 
@@ -287,6 +270,23 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
+  
+  // enable the clock for SYSCFG (hangs on APB2) | is done by cube already
+  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+  // Clean EXTI0 and set it for port B (EXTICR = External Interrupt Configuration Register)
+  SYSCFG->EXTICR[0] &= ~(SYSCFG_EXTICR1_EXTI0_Msk);
+  SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PB;
+
+  // set Falling and Rising Trigger Selection Register for EXTI0
+  EXTI->FTSR |= EXTI_FTSR_TR0_Msk;
+  EXTI->RTSR |= EXTI_RTSR_TR0_Msk;
+
+  // set Interrupt Mask Register so the trigger can be used as interrupt 
+  EXTI->IMR |= EXTI_IMR_MR0_Msk;
+
+  // enable the IRQ in NVIC 
+  NVIC->ISER[0] = 1U << EXTI0_IRQn;
 
   /* USER CODE END MX_GPIO_Init_2 */
 }

@@ -22,6 +22,7 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "button.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -199,5 +200,25 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
+
+void EXTI0_IRQHandler(void)
+{
+  //clean pending register
+  EXTI->PR = EXTI_PR_PR0_Msk;
+
+  //check input register and set current pin state
+  if((GPIOB->IDR & GPIO_IDR_ID0_Msk) != 0U)
+  {
+    SetCurrentPinState(GPIO_PIN_SET);
+  }
+  else {
+    SetCurrentPinState(GPIO_PIN_RESET);
+  }
+  
+  SetStartTimeDebounce();
+  
+  IncreaseInterruptCounter();
+  
+}
 
 /* USER CODE END 1 */
