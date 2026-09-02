@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include "button.h"
+#include "uart.h"
 
 /* USER CODE END Includes */
 
@@ -120,6 +121,34 @@ uint32_t Counter = 0U;
 
 // Push of button starts LED (for 2 seconds)
 
+
+// 
+
+Uart_Init();
+
+//Uart_SendByte(65U);
+
+const char *newLine= "\r\n";
+
+const char *textStart = "Start:\r\n";
+Uart_SendString(textStart);
+
+const char *textNumber1 = "4.294.967.295:\r\n";
+Uart_SendString(textNumber1);
+uint32_t number1 = 4294967295U;
+Uart_SendUint32(number1);
+Uart_SendString(newLine);
+
+
+
+while(1)
+{
+uint8_t receiveByte = Uart_ReceiveByte();
+Uart_SendByte(receiveByte);
+}
+
+
+
   while (1)
   {
     // GPIO debounce:
@@ -136,6 +165,10 @@ uint32_t Counter = 0U;
       if (AcceptedPinState == GPIO_PIN_RESET)
         {
           ++Counter;
+
+          Uart_SendString("countervalue:\r\n");
+          Uart_SendUint32(Counter);
+          Uart_SendString(newLine);
 
           if(!LED2On)
           {
@@ -160,26 +193,6 @@ uint32_t Counter = 0U;
 
     /* USER CODE BEGIN 3 */
   
-  
-    /*
-    // GPIO input controls GPIO output:
-    // Control LED2 with button (B1)
-    //    button is active low!
-    //    if button is pushed, set led ODR with BSRR
-    
-    if((B1_GPIO_Port->IDR) & B1_Pin)
-      {
-        
-        GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
-
-      }
-      else { 
-      
-        GPIOA->BSRR = (uint32_t)LED2_PIN;
-
-      }
-
-    */
   }
   /* USER CODE END 3 */
 }
