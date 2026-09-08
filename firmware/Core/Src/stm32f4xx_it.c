@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "button.h"
+#include "uart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -220,5 +221,13 @@ void EXTI0_IRQHandler(void)
   IncreaseInterruptCounter();
   
 }
+
+void USART2_IRQHandler(void)
+{
+  uint8_t valueRX = USART2->DR & USART_DR_DR_Msk;
+  Uart_WriteRXBuffer(valueRX);
+}
+
+
 
 /* USER CODE END 1 */

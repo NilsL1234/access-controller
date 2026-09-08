@@ -1,7 +1,101 @@
 #include "uart.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include "stm32f4xx_hal.h"
 
+
+volatile uint8_t uart_rx_value = 0U;
+volatile uint8_t rx_buffer [16] = {0};
+
+volatile uint8_t rx_buffer_pos_read = 0;
+volatile uint8_t rx_buffer_pos_write = 0;
+
+volatile bool rx_buffer_full = false;
+volatile bool rx_buffer_empty = true;
+
+
+  // cases:
+
+    /*
+    - writer == reader:
+        - which state?
+        - full? -> only reading
+        - empty? -> only writing
+
+    - writer != reader: reading/writing possible
+    
+    
+    - interrupt: buffer is full but writing interrupts reading
+    
+    
+    */
+
+bool Uart_WriteRXBuffer(uint8_t value)
+{
+    if(rx_buffer_full)
+    {
+        return false;
+    }
+
+    rx_buffer[rx_buffer_pos_write] = value;
+    ++rx_buffer_pos_write;
+    rx_buffer_empty = false;
+
+    if(rx_buffer_pos_write == (sizeof(rx_buffer)/sizeof(rx_buffer[0])))
+    {
+        rx_buffer_pos_write = 0;
+    }
+
+    if(rx_buffer_pos_write == rx_buffer_pos_read)
+    {
+        rx_buffer_full = true;
+    }
+    return true;
+}
+
+bool Uart_ReadRXBuffer(uint8_t *value)
+{
+
+    if(rx_buffer_empty)
+    {
+        return false;
+    }
+
+    uint32_t irqEnabled = NVIC_GetEnableIRQ(USART2_IRQn);
+    NVIC_DisableIRQ(USART2_IRQn);
+
+    *value = rx_buffer[rx_buffer_pos_read];
+    ++rx_buffer_pos_read;
+    rx_buffer_full = false;
+
+    if(rx_buffer_pos_read == (sizeof(rx_buffer)/sizeof(rx_buffer[0])))
+    {
+        rx_buffer_pos_read = 0;
+    }
+
+    if(rx_buffer_pos_read == rx_buffer_pos_write)
+    {
+        rx_buffer_empty = true;
+    }
+
+    if(irqEnabled != 0U)
+    {
+        NVIC_EnableIRQ(USART2_IRQn);
+    }
+
+    return true;    
+}
+
+
+void Uart_SetRx(uint8_t rx)
+{
+    uart_rx_value = rx;
+}
+
+uint8_t Uart_GetRx(void)
+{
+    return uart_rx_value;
+}
 
 void Uart_Init(void)
 {

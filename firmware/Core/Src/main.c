@@ -139,12 +139,53 @@ uint32_t number1 = 4294967295U;
 Uart_SendUint32(number1);
 Uart_SendString(newLine);
 
+// enable interrupt for RXNE (receive not empty)
+USART2->CR1 |= USART_CR1_RXNEIE_Msk;
+NVIC_EnableIRQ(USART2_IRQn);
+
+
+//test Uart with buffer
+
+uint8_t a = 0x41;
+uint8_t b = 0x42;
+uint8_t c = 0x43;
+uint8_t d = 0x44;
+uint8_t e = 0x45;
+uint8_t f = 0x46;
+
+
+
+Uart_WriteRXBuffer(a);
+Uart_WriteRXBuffer(b);
+Uart_WriteRXBuffer(c);
+Uart_WriteRXBuffer(d);
+Uart_WriteRXBuffer(e);
+Uart_WriteRXBuffer(f);
+
+Uart_WriteRXBuffer(a);
+Uart_WriteRXBuffer(b);
+Uart_WriteRXBuffer(c);
+Uart_WriteRXBuffer(d);
+Uart_WriteRXBuffer(e);
+Uart_WriteRXBuffer(f);
+
+Uart_WriteRXBuffer(a);
+Uart_WriteRXBuffer(b);
+Uart_WriteRXBuffer(c);
+Uart_WriteRXBuffer(d); // last value
+Uart_WriteRXBuffer(e);
+Uart_WriteRXBuffer(f);
 
 
 while(1)
 {
-uint8_t receiveByte = Uart_ReceiveByte();
-Uart_SendByte(receiveByte);
+
+  uint8_t receivedRXValue;
+
+  if(Uart_ReadRXBuffer(&receivedRXValue))
+  {
+    Uart_SendByte(receivedRXValue);
+  }
 }
 
 
