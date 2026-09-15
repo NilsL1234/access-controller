@@ -1,0 +1,19 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Flash STM32",
+            "type": "process",
+            "command": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/programmer/2.23.0/bin/STM32_Programmer_CLI",
+            "args": [
+                "-c",
+                "port=SWD",
+                "-w",
+                "${workspaceFolder}/firmware/build/Debug/firmware.elf",
+                "-v",
+                "-rst"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}

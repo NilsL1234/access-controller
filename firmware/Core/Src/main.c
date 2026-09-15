@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include "button.h"
 #include "uart.h"
+#include "sensors.h"
 
 /* USER CODE END Includes */
 
@@ -95,30 +96,6 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
-  // PWM 
-  // Servo config
-  
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-
-
-  //calibration servo
-
-  TIM2->CCR3 = 1750;
-
-  HAL_Delay(1000);
-
-  TIM2->CCR3 = 700;
-
-  HAL_Delay(1000);
-
-  TIM2->CCR3 = 1750;
-
-
-
-
-
-
   /* USER CODE END 2 */
 
   /* Initialize leds */
@@ -127,8 +104,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
-//Debounce
+/*
+M7-M8: Timebased Processes/Debounce/Interrupts
+  - setup
+  - rest in main loop
+*/
 
 const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
 const uint32_t LED2_TIME_INTERVAL = 2000U;
@@ -136,27 +116,19 @@ const uint32_t LED2_TIME_INTERVAL = 2000U;
 GPIO_PinState AcceptedPinState = GPIO_PIN_SET; 
 
 bool LED2On = false;
-
-
-
-//uint32_t StartTimeDebounce = 0U;
 uint32_t StartTimeLed2On = 0U;
-
 uint32_t Counter = 0U;
 
-// HAL_GetTick() gives me current time
-
-// Push of button starts LED (for 2 seconds)
-
-
-// 
+/*
+M9: UART:
+  - send uint/string to terminal
+  - receive input as interrupt
+  - send input back to display for example in terminal
+*/
 
 Uart_Init();
 
-//Uart_SendByte(65U);
-
 const char *newLine= "\r\n";
-
 const char *textStart = "Start:\r\n";
 Uart_SendString(textStart);
 
@@ -170,101 +142,94 @@ Uart_SendString(newLine);
 USART2->CR1 |= USART_CR1_RXNEIE_Msk;
 NVIC_EnableIRQ(USART2_IRQn);
 
-
-//test Uart with buffer
-
+// example uart ring buffer
 uint8_t a = 0x41;
-uint8_t b = 0x42;
-uint8_t c = 0x43;
-uint8_t d = 0x44;
-uint8_t e = 0x45;
-uint8_t f = 0x46;
-
-
-
 Uart_WriteRXBuffer(a);
-Uart_WriteRXBuffer(b);
-Uart_WriteRXBuffer(c);
-Uart_WriteRXBuffer(d);
-Uart_WriteRXBuffer(e);
-Uart_WriteRXBuffer(f);
 
-Uart_WriteRXBuffer(a);
-Uart_WriteRXBuffer(b);
-Uart_WriteRXBuffer(c);
-Uart_WriteRXBuffer(d);
-Uart_WriteRXBuffer(e);
-Uart_WriteRXBuffer(f);
+/*
+M10: Servo and PWM
+  - first calibration of servo for locked and unlocked states
+  - NOT FINISHED
+*/
+  
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 
-Uart_WriteRXBuffer(a);
-Uart_WriteRXBuffer(b);
-Uart_WriteRXBuffer(c);
-Uart_WriteRXBuffer(d); // last value
-Uart_WriteRXBuffer(e);
-Uart_WriteRXBuffer(f);
+//calibration servo
+TIM2->CCR3 = 1750;
+HAL_Delay(1000);
+TIM2->CCR3 = 700;
+HAL_Delay(1000);
+TIM2->CCR3 = 1750;
 
-
-
-
-while(1)
+while (1)
 {
 
-  uint8_t receivedRXValue;
+/*
+M7-M8: Timebased Processes/Interrupts
+  - when button is pushed, LED is on for 2 seconds 
+  - push of button is tracked with interrupt
+  - race conditions are covered
+  - debounce of button push is implemented (after 20ms new button state is accepted)
+*/
 
-  if(Uart_ReadRXBuffer(&receivedRXValue))
+// deactivate interrupt to avoid race condition / critical section
+NVIC->ICER[0] = 1U << EXTI0_IRQn;
+
+// new pin state B0 accepted 
+if(((HAL_GetTick() - GetStartTimeDebounce()) >= DEBOUNCE_TIME_INTERVAL) && (GetCurrentPinState() != AcceptedPinState)) 
+{
+  AcceptedPinState = GetCurrentPinState();
+
+  if(AcceptedPinState == GPIO_PIN_RESET)
   {
-    Uart_SendByte(receivedRXValue);
-  }
-}
+    ++Counter;
 
+    Uart_SendString("countervalue:\r\n");
+    Uart_SendUint32(Counter);
+    Uart_SendString(newLine);
 
-
-  while (1)
-  {
-    // GPIO debounce:
-
-    // deactivate interrupt to avoid race condition / critical section
-    // todo: safe both time and state to have shorter crit sec would be cleaner
-    NVIC->ICER[0] = 1U << EXTI0_IRQn;
-
-    // new pin state B0 accepted 
-    if(((HAL_GetTick() - GetStartTimeDebounce()) >= DEBOUNCE_TIME_INTERVAL) && (GetCurrentPinState() != AcceptedPinState)) 
+    if(!LED2On)
     {
-      AcceptedPinState = GetCurrentPinState();
+      GPIOA->BSRR = (uint32_t)LED2_PIN;
+      StartTimeLed2On = HAL_GetTick();
+      LED2On = true;
+    }        
+  } 
+}
+  // Activate interrupt again
+  NVIC->ISER[0] = 1U << EXTI0_IRQn;
 
-      if (AcceptedPinState == GPIO_PIN_RESET)
-        {
-          ++Counter;
-
-          Uart_SendString("countervalue:\r\n");
-          Uart_SendUint32(Counter);
-          Uart_SendString(newLine);
-
-          if(!LED2On)
-          {
-            GPIOA->BSRR = (uint32_t)LED2_PIN;
-            StartTimeLed2On = HAL_GetTick();
-            LED2On = true;
-          }        
-        } 
+  // turn of led after time interval
+  if(((HAL_GetTick() - StartTimeLed2On) >= LED2_TIME_INTERVAL) && (LED2On == true))
+    {
+      GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
+      LED2On = false;
     }
 
-    // Activate interrupt again
-    NVIC->ISER[0] = 1U << EXTI0_IRQn;
+/*
+M9: UART
+  - read keyboard input from Uart Ring buffer for new values (get written by interrupt)
+  - display 
+*/ 
+uint8_t receivedRXValue;
 
-    // turn of led after time interval
-    if(((HAL_GetTick() - StartTimeLed2On) >= LED2_TIME_INTERVAL) && (LED2On == true))
-      {
-        GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
-        LED2On = false;
-      }
+if(Uart_ReadRXBuffer(&receivedRXValue))
+{
+  Uart_SendByte(receivedRXValue);
+}
 
-    /* USER CODE END WHILE */
+/*
+M11: Sensors
+  - update the current lock state with both sensors
+*/
 
-    /* USER CODE BEGIN 3 */
-  
-  }
-  /* USER CODE END 3 */
+UpdateLockState();
+
+}
+/* USER CODE END WHILE */
+
+/* USER CODE BEGIN 3 */
+/* USER CODE END 3 */
 }
 
 /**
@@ -396,6 +361,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : BoltSensorLocked_Pin BoltSensorUnlocked_Pin */
+  GPIO_InitStruct.Pin = BoltSensorLocked_Pin|BoltSensorUnlocked_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : USART_TX_Pin USART_RX_Pin */
   GPIO_InitStruct.Pin = USART_TX_Pin|USART_RX_Pin;
