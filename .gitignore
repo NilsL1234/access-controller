@@ -62,3 +62,4 @@ firmware/build/
 
 # pdfs
 *.pdf
+.vscode/settings.json

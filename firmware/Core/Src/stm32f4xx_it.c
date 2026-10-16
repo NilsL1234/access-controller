@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "button.h"
 #include "uart.h"
+#include "rfid.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -220,6 +221,30 @@ void EXTI0_IRQHandler(void)
   
   IncreaseInterruptCounter();
   
+}
+
+/* EXTI2_IRQHandler:
+  - triggers with IRQ from MFRC522 when a value is written 
+    into the FIFO buffer
+  - state is updated according to current state
+*/
+void EXTI2_IRQHandler(void)
+{
+  UIDSearchState State = MFRC522_GetCurrentUIDSearchState();
+
+  //clean pending register
+  EXTI->PR = EXTI_PR_PR2_Msk;
+
+  // update UID state depending on current UID state
+  switch (State) {
+    case RFID_ATQA_WAITING:
+      MFRC522_SetCurrentUIDSearchState(RFID_ATQA_AVAILABLE);
+      break;
+    case RFID_ANTICOLLISION_CL1_WAITING:
+      MFRC522_SetCurrentUIDSearchState(RFID_ANTICOLLISION_CL1_AVAILABLE);
+      break;
+    default: break;
+  }
 }
 
 void USART2_IRQHandler(void)

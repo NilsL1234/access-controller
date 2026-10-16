@@ -61,7 +61,7 @@ After a number of unsuccessful tries, the state switches to blocked and no acces
                                                                                 -  1 min.
                                                                                 -  2 min. 
                                                                                 -  5 min. (maximum)
-                    - gets a reset to 30 sec. when a unauthorized access attempt happens or the system is initialized again
+                    - gets a reset to 30 sec. when a authorized access attempt happens or the system is initialized again
 
 
 ## 3. Assumptions:

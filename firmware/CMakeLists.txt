@@ -48,6 +48,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/button.c
     Core/Src/uart.c
     Core/Src/sensors.c
+    Core/Src/rfid.c
 )
 
 # Add include paths
