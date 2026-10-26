@@ -652,8 +652,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : BoltSensorLocked_Pin BoltSensorUnlocked_Pin RFID_IRQ_Pin */
-  GPIO_InitStruct.Pin = BoltSensorLocked_Pin|BoltSensorUnlocked_Pin|RFID_IRQ_Pin;
+  /*Configure GPIO pins : BoltSensorLocked_Pin BoltSensorUnlocked_Pin RFID_IRQ_Pin DoorSensor_Pin */
+  GPIO_InitStruct.Pin = BoltSensorLocked_Pin|BoltSensorUnlocked_Pin|RFID_IRQ_Pin|DoorSensor_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
