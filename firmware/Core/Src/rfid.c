@@ -21,10 +21,7 @@ static const uint8_t SoftResetCommand = 0x0fU;
 static const uint8_t SoftResetCommandPos = 0U;
 static const uint8_t SoftResetCommandMsk = SoftResetCommand << SoftResetCommandPos;
 
-
-
 // run Transive Command 1100 idle =0000
-
 
 
 // RFID
@@ -454,6 +451,7 @@ MFRC522Status MFRC522_ChangeTxLastBits(uint8_t LengthTxLastByte)
 */
 MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
 {
+
     static MFRC522Status Status = MFRC522_OK;
     static FIFOBufferStatus FIFOStatus = FIFO_OK;
     static uint8_t ATQA [2] = {0U};
@@ -461,9 +459,6 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
     static uint8_t AnticollisionCL1Resp [5] = {0U};
     const uint8_t AnticollisionCL1RespLength = 5U;
     
-    UIDSearchState SearchStateTEST = MFRC522_GetCurrentUIDSearchState();
-
-
     switch(CurrentUIDSearchState)
     {
         case RFID_OFF:
@@ -637,6 +632,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             
             if (BCC == AnticollisionCL1Resp[4])
             {
+
                 DetectedUID->UIDLength = UID_LENGTH_4;
 
                 for(size_t i=0; i<UID_LENGTH_4; ++i)

@@ -4,20 +4,38 @@
 #include <stdbool.h>
 
 
-static const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
-static uint32_t StartTimeDebounce = 0U;
+static const uint32_t DEBOUNCE_TIME_INTERVAL_BOLT = 20U;
+static const uint32_t DEBOUNCE_TIME_INTERVAL_DOOR = 500U;
+
+static uint32_t StartTimeDebounceBolt = 0U;
+static uint32_t StartTimeDebounceDoor = 0U;
 
 static BoltState AcceptedBoltState = BOLT_INIT;
 static BoltState PreviousBoltState = BOLT_INIT;
 static BoltState CurrentBoltState = BOLT_INIT;
 
+static DoorState AcceptedDoorState = DOOR_INIT;
+static DoorState PreviousDoorState = DOOR_INIT;
+static DoorState CurrentDoorState = DOOR_INIT;
 
-BoltState GetBoltState(void)
+
+
+BoltState SENSORS_GetBoltState(void)
 {
     return AcceptedBoltState;
 }
 
-static BoltState DetermineCurrentBoltState(void)
+DoorState SENSORS_GetDoorState(void)
+{
+    return AcceptedDoorState;
+}
+
+/*
+    SENSORS_DetermineCurrentBoltState:
+    - get input state for both bolt sensors
+    - determine bolt position from them 
+*/
+static BoltState SENSORS_DetermineCurrentBoltState(void)
 {
     BoltSensorState locked = BOLT_SENSOR_INIT;
     BoltSensorState unlocked = BOLT_SENSOR_INIT;
@@ -53,17 +71,40 @@ static BoltState DetermineCurrentBoltState(void)
     }
 }
 
-bool UpdateLockState(void)
+/*
+DetermineCurrentDoorState:
+- check pin state from door sensor
+- return matching DoorState
+*/
+static DoorState SENSORS_DetermineCurrentDoorState(void)
+{
+    if((DoorSensor_GPIO_Port->IDR & DoorSensor_Pin) == 0U)
+    {
+        return DOOR_SENSOR_ACTIVE;
+    }
+    else {
+        return DOOR_SENSOR_INACTIVE;
+    }
+}
+
+/*
+    UpdateLockState:
+    - get current bolt state
+    - start timer when different to previous check
+    - when new position is stable for +20ms update AcceptedBoltState
+*/
+bool SENSORS_UpdateLockState(void)
 {
 
-    CurrentBoltState = DetermineCurrentBoltState();
+    CurrentBoltState = SENSORS_DetermineCurrentBoltState();
 
     if(CurrentBoltState != PreviousBoltState)
     {
-        StartTimeDebounce = HAL_GetTick();
+        StartTimeDebounceBolt = HAL_GetTick();
     }
 
-    if(((HAL_GetTick() - StartTimeDebounce) >= DEBOUNCE_TIME_INTERVAL) && (CurrentBoltState != AcceptedBoltState))
+    // update accepted BoltState when its stable
+    if(((HAL_GetTick() - StartTimeDebounceBolt) >= DEBOUNCE_TIME_INTERVAL_BOLT) && (CurrentBoltState != AcceptedBoltState))
     {
 
     AcceptedBoltState = CurrentBoltState;
@@ -97,4 +138,50 @@ bool UpdateLockState(void)
     }
 }
 
+/*
+    UpdateDoorState:
+    - get current door state from GPIO
+    - start timer when different to previous check
+    - when new position is stable for +20ms update AcceptedDoorState
+*/
+bool SENSORS_UpdateDoorState(void)
+{
 
+    CurrentDoorState = SENSORS_DetermineCurrentDoorState();
+
+    if(CurrentDoorState != PreviousDoorState)
+    {
+        StartTimeDebounceDoor = HAL_GetTick();
+    }
+
+    // update accepted DoorState when its stable
+    if(((HAL_GetTick() - StartTimeDebounceDoor) >= DEBOUNCE_TIME_INTERVAL_DOOR) && (CurrentDoorState != AcceptedDoorState))
+    {
+
+    AcceptedDoorState = CurrentDoorState;
+    
+    if(AcceptedDoorState == DOOR_INIT)
+    {
+        Uart_SendString("Door state: Init \r\n");
+    }
+    else if (AcceptedDoorState == DOOR_CLOSED) {
+        Uart_SendString("Door state: Closed \r\n");
+    }
+    else if (AcceptedDoorState == DOOR_OPEN) {
+        Uart_SendString("Door state: Open \r\n");
+    }
+    else{
+        Uart_SendString("Door state: Invalid \r\n");
+    }
+    }
+
+    PreviousDoorState = CurrentDoorState;
+
+    if(AcceptedDoorState !=DOOR_INVALID)
+    {
+        return true;
+    }
+    else {
+    return false;
+    }
+}

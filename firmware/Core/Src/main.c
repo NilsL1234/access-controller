@@ -22,10 +22,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include "access_controler.h"
 #include "button.h"
 #include "uart.h"
 #include "sensors.h"
 #include "rfid.h"
+
 
 /* USER CODE END Includes */
 
@@ -71,6 +73,14 @@ SPI_HandleTypeDef* GetSPIHandleTypeDef(void)
 {
   return &hspi2;
 }
+
+TIM_HandleTypeDef* GetTIMHandleTypeDef(void)
+{
+  return &htim2;
+}
+
+
+
 
 
 /* USER CODE END 0 */
@@ -169,12 +179,15 @@ HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 // 1750 locked
 // 1270 unlocked 
 
+/*
 TIM2->CCR3 = 1270;
 HAL_Delay(1000);
-TIM2->CCR3 = 1750;
-HAL_Delay(1000);
-TIM2->CCR3 = 1270;
 
+TIM2->CCR3 = 1270;
+*/
+
+//TIM2->CCR3 = 1750;
+//HAL_Delay(1000);
 
 
 
@@ -336,14 +349,6 @@ HAL_SPI_TransmitReceive(&hspi2, ReadTxModeRegData, RxDataSPI, SPIsizeTransferDat
 RFID_NSS_GPIO_Port->BSRR = (uint32_t)RFID_NSS_Pin;
 
 
-
-
-
-
-
-
-
-
 /*
 M13: MFRC522 Driver
 - ...
@@ -366,31 +371,28 @@ EXTI->IMR |= EXTI_IMR_MR2_Msk;
 // enable the IRQ in NVIC 
 NVIC_EnableIRQ(EXTI2_IRQn);
 
-
-
-UID TestUID;
-TestUID.UID[0] = 0x00;
-TestUID.UID[1] = 0x00;
-TestUID.UID[2] = 0x00;
-TestUID.UID[3] = 0x00;
-TestUID.UID[4] = 0x00;
-TestUID.UID[5] = 0x00;
-TestUID.UID[6] = 0x00;
-TestUID.UID[7] = 0x00;
-TestUID.UID[8] = 0x00;
-TestUID.UID[9] = 0x00;
-TestUID.UIDLength = 0;
-
-
-uint8_t ErrorRegData = 0U;
-MFRC522_ReadReg(6U, &ErrorRegData);
-
-MFRC522_ExecuteCommand(SOFT_RESET_COMMAND);
+/*MFRC522_ExecuteCommand(SOFT_RESET_COMMAND);
 HAL_Delay(1000);
 MFRC522Status UIDStatus = MFRC522_InitTransceive();
-HAL_Delay(1000); 
+HAL_Delay(1000);
+*/
+
+
+
+ACCESS_CONTROLER_InitRFID();
 
 while (1) {
+
+if(ACCESS_CONTROLER_GetCurrentAccessControlerState() == UNINITIALIZED)
+{
+  ACCESS_CONTROLER_InitState();
+}
+
+ACCESS_CONTROLER_Run();
+
+}
+
+/*
 UIDStatus = MFRC522_DetectUID(&TestUID);
 bool IsValid = false; 
 UIDStatus =  MFRC522_ValidateUID(&TestUID, 4U, &IsValid);
@@ -398,7 +400,7 @@ if(IsValid)
 {
   uint8_t asd = 1U;
 }
-}
+*/
 
 
 while (1)
@@ -467,7 +469,7 @@ M11: Sensors
           Unlockedsensor->PC1->PinA4
 */
 
-UpdateLockState();
+SENSORS_UpdateLockState();
 
 }
     /* USER CODE END WHILE */

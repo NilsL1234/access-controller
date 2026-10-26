@@ -21,8 +21,28 @@ typedef enum
     BOLT_SENSOR_INACTIVE
 } BoltSensorState;
 
-bool UpdateLockState(void);
+typedef enum
+{
+    DOOR_INIT,
+    DOOR_CLOSED,
+    DOOR_OPEN,
+    DOOR_INVALID
+} DoorState;
 
-BoltState GetBoltState(void);
+typedef enum
+{
+    DOOR_SENSOR_INIT,
+    DOOR_SENSOR_ACTIVE,
+    DOOR_SENSOR_INACTIVE
+
+} DoorSensorState;
+
+BoltState SENSORS_GetBoltState(void);
+
+DoorState SENSORS_GetDoorState(void);
+
+bool SENSORS_UpdateLockState(void);
+
+bool SENSORS_UpdateDoorState(void);
 
 #endif

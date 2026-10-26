@@ -61,6 +61,7 @@ void Error_Handler(void);
 //TODO: Check for better solution to get hspi2 in rfid.c
 SPI_HandleTypeDef* GetSPIHandleTypeDef(void);
 
+TIM_HandleTypeDef* GetTIMHandleTypeDef(void);
 
 /* USER CODE END EFP */
 
@@ -73,6 +74,8 @@ SPI_HandleTypeDef* GetSPIHandleTypeDef(void);
 #define BoltSensorUnlocked_GPIO_Port GPIOC
 #define RFID_IRQ_Pin GPIO_PIN_2
 #define RFID_IRQ_GPIO_Port GPIOC
+#define DoorSensor_Pin GPIO_PIN_3
+#define DoorSensor_GPIO_Port GPIOC
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
