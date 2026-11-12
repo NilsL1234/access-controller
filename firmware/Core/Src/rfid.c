@@ -21,8 +21,6 @@ static const uint8_t SoftResetCommand = 0x0fU;
 static const uint8_t SoftResetCommandPos = 0U;
 static const uint8_t SoftResetCommandMsk = SoftResetCommand << SoftResetCommandPos;
 
-// run Transive Command 1100 idle =0000
-
 
 // RFID
 
@@ -37,10 +35,6 @@ static const uint8_t AnticollisionCL1ReqLength = 2U;
 static const UID WhiteListUID [] = {
 {.UID = {0xe7, 0x20, 0x75, 0x33}, .UIDLength = 4U}, // card
 {.UID = {0xe1, 0x65, 0x6f, 0x66}, .UIDLength = 4U}, // transponder
-{.UID = {0U, 0U, 0U, 0U, 0U, 0U, 0U}, .UIDLength = 7U},
-{.UID = {0U, 0U, 0U, 0U, 0U, 0U, 1U}, .UIDLength = 7U},
-{.UID = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U}, .UIDLength = 10U},
-{.UID = {0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U, 1U}, .UIDLength = 10U}
 };
 
 static const size_t WhiteListUIDLenth = sizeof(WhiteListUID) / sizeof(WhiteListUID[0]);
@@ -68,7 +62,7 @@ MFRC522Status MFRC522_ReadReg(uint8_t RegAddress, uint8_t *RegData)
 
 
     // prepare Tx/Rx
-    const uint8_t TxDataSPI[] = {ReadRegByte, DummyByte};
+    const uint8_t TxDataSPI[] = {ReadRegByte, DummyByte}; 
     uint8_t RxDataSPI[] = {0U, 0U};
 
     // transmit data via SPI
