@@ -63,6 +63,8 @@ SPI_HandleTypeDef* GetSPIHandleTypeDef(void);
 
 TIM_HandleTypeDef* GetTIMHandleTypeDef(void);
 
+I2C_HandleTypeDef* GetI2CHandleTypeDef(void);
+
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

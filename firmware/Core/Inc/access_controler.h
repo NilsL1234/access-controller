@@ -1,11 +1,9 @@
 #ifndef ACCESS_CONTROLER_H
 #define ACCESS_CONTROLER_H
 
-/*
-TODO: 
-- state maschine for access controler 
-*/
+#include <stdint.h>
 
+// Enums
 typedef enum
 {
     LOCKED_READY = 0x00, // door is locked and can be unlocked with whitelisted UID
@@ -29,40 +27,22 @@ typedef enum
 
 } ACCESS_CONTROLER_Status;
 
+// Getter
+ACCESS_CONTROLER_State ACCESS_CONTROLER_GetCurrentAccessControlerState(void);
+
+uint8_t ACCESS_CONTROLER_GetCurrentBlockCounter(void);
+
+uint32_t ACCESS_CONTROLER_GetBlockCounterDisplayTime(void);
+
+uint32_t ACCESS_CONTROLER_GetBlockCounterDisplayStartTick(void);
+
+
+// Functions
 ACCESS_CONTROLER_Status ACCESS_CONTROLER_InitRFID(void);
 
 ACCESS_CONTROLER_Status ACCESS_CONTROLER_InitState(void);
 
 ACCESS_CONTROLER_Status ACCESS_CONTROLER_Run(void);
-
-ACCESS_CONTROLER_State ACCESS_CONTROLER_GetCurrentAccessControlerState(void);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
