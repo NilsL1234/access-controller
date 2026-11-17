@@ -4,18 +4,24 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+typedef enum {
+    UART_OK      = 0x00,
+    UART_ERROR   = 0x01,
+    UART_TIMEOUT = 0x02
+} UART_Status;
+
+
 void Uart_Init(void);
 
 void Usart_SetRx(uint8_t rx);
 
 uint8_t Usart_GetRx(void);
 
+UART_Status Uart_SendByte(uint8_t byte);
 
-void Uart_SendByte(uint8_t byte);
+UART_Status Uart_SendUint32(uint32_t value);
 
-void Uart_SendUint32(uint32_t value);
-
-void Uart_SendString(const char *text);
+UART_Status Uart_SendString(const char *text);
 
 uint8_t Uart_ReceiveByte(void);
 

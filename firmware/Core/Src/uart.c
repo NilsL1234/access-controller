@@ -179,12 +179,18 @@ void Uart_Init(void)
 
 }
 
-void Uart_SendByte(uint8_t byte)
+UART_Status Uart_SendByte(uint8_t byte)
 {
-  while((USART2->SR & USART_SR_TXE_Msk) == 0U)
-  {
-  }
+    const uint32_t MaxTimeToSend = 5U;
+    uint32_t SendTimer = HAL_GetTick();
+    while((USART2->SR & USART_SR_TXE_Msk) == 0U)
+    {
+        if ((HAL_GetTick() - SendTimer) >= MaxTimeToSend) {
+            return UART_TIMEOUT;
+        }
+    }
     USART2->DR = byte;
+    return UART_OK;
 }
 
 uint8_t Uart_ReceiveByte(void)
@@ -195,12 +201,11 @@ uint8_t Uart_ReceiveByte(void)
     return USART2->DR; 
 }
 
-void Uart_SendUint32(uint32_t value)
+UART_Status Uart_SendUint32(uint32_t value)
 {
     if(value==0U)
     { 
-        Uart_SendByte('0');
-        return;
+        return Uart_SendByte('0');
     }
     
     char result[11];
@@ -229,21 +234,36 @@ void Uart_SendUint32(uint32_t value)
     
     while(i > 0U)
     {
-        Uart_SendByte('0'+ result[i-1]);
+        UART_Status Status = Uart_SendByte('0'+ result[i-1]);
+        if (Status != UART_OK)
+        {
+            return Status;
+        }
         --i;
     }
 
+    return UART_OK;
 }
 
-void Uart_SendString(const char *text)
+UART_Status Uart_SendString(const char *text)
 {
+  if (text == NULL)
+  {
+    return UART_ERROR;
+  }
+
   size_t i = 0U;
   char currentChar = text[i];
 
   while(currentChar != '\0')
   {
-    Uart_SendByte(currentChar);
+    UART_Status Status = Uart_SendByte(currentChar);
+    if (Status != UART_OK)
+    {
+      return Status;
+    }
     ++i;
     currentChar = text[i];
   }
+  return UART_OK;
 }
