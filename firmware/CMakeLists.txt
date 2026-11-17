@@ -45,7 +45,7 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    Core/Src/access_controler.c
+    Core/Src/access_controller.c
     Core/Src/button.c
     Core/Src/uart.c
     Core/Src/sensors.c
@@ -53,6 +53,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/servo.c
     Core/Src/oled.c
     Core/Src/chars.c
+    Core/Src/log.c
 
 )
 

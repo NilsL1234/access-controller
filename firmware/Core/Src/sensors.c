@@ -129,7 +129,7 @@ bool SENSORS_UpdateLockState(void)
 
     PreviousBoltState = CurrentBoltState;
 
-    if(AcceptedBoltState !=BOLT_INVALID)
+    if(AcceptedBoltState != BOLT_INVALID)
     {
         return true;
     }

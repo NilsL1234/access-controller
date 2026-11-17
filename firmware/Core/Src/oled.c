@@ -202,18 +202,18 @@ SSD1306_Status SSD1306_InitOLED(void)
 // gets called when block counter is 1 or 2
 SSD1306_Status SSD1306_DisplayTryBlocked(void)
 {
-    uint8_t BlockCounter = ACCESS_CONTROLER_GetCurrentBlockCounter();
+    uint8_t BlockCounter = ACCESS_CONTROLLER_GetCurrentBlockCounter();
 
-    if((HAL_GetTick() - ACCESS_CONTROLER_GetBlockCounterDisplayStartTick()) > ACCESS_CONTROLER_GetBlockCounterDisplayTime() &&
-        (ACCESS_CONTROLER_GetBlockCounterMessageDisplayed() == false))
+    if((HAL_GetTick() - ACCESS_CONTROLLER_GetBlockCounterDisplayStartTick()) > ACCESS_CONTROLLER_GetBlockCounterDisplayTime() &&
+        (ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed() == false))
     {
         // TODO: Error handling
         SSD1306_DisplayCurrentState();
-        ACCESS_CONTROLER_SetBlockCounterMessageDisplayed(true);
+        ACCESS_CONTROLLER_SetBlockCounterMessageDisplayed(true);
         return SSD1306_OK;
     }
 
-    if((BlockCounter == 1U) && (ACCESS_CONTROLER_GetBlockCounterMessageDisplayed() == false))
+    if((BlockCounter == 1U) && (ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed() == false))
     {
         uint8_t BorderStartEndBlockCounter1[EMPTY_BYTES_START_END_9CHARS];
         memset(BorderStartEndBlockCounter1, 0xFF, sizeof(BorderStartEndBlockCounter1));
@@ -238,7 +238,7 @@ SSD1306_Status SSD1306_DisplayTryBlocked(void)
         SSD1306_SendData(BorderStartEndBlockCounter1, EMPTY_BYTES_START_END_9CHARS);
         return SSD1306_OK;
     }
-    else if((BlockCounter == 2U) && (ACCESS_CONTROLER_GetBlockCounterMessageDisplayed() == false))
+    else if((BlockCounter == 2U) && (ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed() == false))
     {
         uint8_t BorderStartEndBlockCounter1[EMPTY_BYTES_START_END_9CHARS];
         memset(BorderStartEndBlockCounter1, 0xFF, sizeof(BorderStartEndBlockCounter1));
@@ -280,7 +280,7 @@ SSD1306_Status SSD1306_DisplayCurrentState(void)
 
 
 
-    switch (ACCESS_CONTROLER_GetCurrentAccessControlerState())
+    switch (ACCESS_CONTROLLER_GetCurrentAccessControllerState())
     {
         case LOCKED_READY:  // displays: "SHOW ID"
 

@@ -22,13 +22,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
-#include "access_controler.h"
+#include "access_controller.h"
 #include "button.h"
 #include "uart.h"
 #include "sensors.h"
 #include "rfid.h"
 #include "oled.h"
 #include "chars.h"
+#include "log.h"
 #include <string.h>
 
 
@@ -361,38 +362,18 @@ EXTI->IMR |= EXTI_IMR_MR2_Msk;
 // enable the IRQ in NVIC 
 NVIC_EnableIRQ(EXTI2_IRQn);
 
-/*MFRC522_ExecuteCommand(SOFT_RESET_COMMAND);
-HAL_Delay(1000);
-MFRC522Status UIDStatus = MFRC522_InitTransceive();
-HAL_Delay(1000);
-*/
 
-
-
-ACCESS_CONTROLER_InitRFID();
+ACCESS_CONTROLLER_InitRFID();
 SSD1306_InitOLED();
 
 while (1) {
 
-if(ACCESS_CONTROLER_GetCurrentAccessControlerState() == UNINITIALIZED)
+if(ACCESS_CONTROLLER_GetCurrentAccessControllerState() == UNINITIALIZED)
 {
-  ACCESS_CONTROLER_InitState();
+  ACCESS_CONTROLLER_InitState();
 }
-
-ACCESS_CONTROLER_Run();
-
+ACCESS_CONTROLLER_Run();
 }
-
-/*
-UIDStatus = MFRC522_DetectUID(&TestUID);
-bool IsValid = false; 
-UIDStatus =  MFRC522_ValidateUID(&TestUID, 4U, &IsValid);
-if(IsValid)
-{
-  uint8_t asd = 1U;
-}
-*/
-
 
 while (1)
 {
@@ -452,15 +433,6 @@ if(Uart_ReadRXBuffer(&receivedRXValue))
 {
   Uart_SendByte(receivedRXValue);
 }
-
-/*
-M11: Sensors
-  - update the current lock state with both sensors
-  - TODO: Lockedsensor->PC0->PinA5
-          Unlockedsensor->PC1->PinA4
-*/
-
-SENSORS_UpdateLockState();
 
 }
     /* USER CODE END WHILE */

@@ -1,7 +1,7 @@
 #ifndef OLED_H
 #define OLED_H
 
-#include "access_controler.h"
+#include "access_controller.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -75,9 +75,9 @@ SSD1306_Status SSD1306_DisplayCurrentState(void);
 
 SSD1306_Status SSD1306_DisplayTryBlocked(void);
 
-void ACCESS_CONTROLER_SetBlockCounterMessageDisplayed(bool Displayed);
+void ACCESS_CONTROLLER_SetBlockCounterMessageDisplayed(bool Displayed);
 
-bool ACCESS_CONTROLER_GetBlockCounterMessageDisplayed(void);
+bool ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed(void);
 
 
 // How do I write letters to display?
