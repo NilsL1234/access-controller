@@ -226,12 +226,4 @@ void EXTI2_IRQHandler(void)
   }
 }
 
-void USART2_IRQHandler(void)
-{
-  uint8_t valueRX = USART2->DR & USART_DR_DR_Msk;
-  Uart_WriteRXBuffer(valueRX);
-}
-
-
-
 /* USER CODE END 1 */

@@ -134,33 +134,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 /*
-M9: UART:
-  - send uint/string to terminal
-  - receive input as interrupt
-  - send input back to display for example in terminal
-*/
-
-Uart_Init();
-
-const char *newLine= "\r\n";
-const char *textStart = "Start:\r\n";
-Uart_SendString(textStart);
-
-const char *textNumber1 = "4.294.967.295:\r\n";
-Uart_SendString(textNumber1);
-uint32_t number1 = 4294967295U;
-Uart_SendUint32(number1);
-Uart_SendString(newLine);
-
-// enable interrupt for RXNE (receive not empty)
-USART2->CR1 |= USART_CR1_RXNEIE_Msk;
-NVIC_EnableIRQ(USART2_IRQn);
-
-// example uart ring buffer
-uint8_t a = 0x41;
-Uart_WriteRXBuffer(a);
-
-/*
 M10: Servo and PWM
   - first calibration of servo for locked and unlocked states
   - NOT FINISHED
@@ -343,7 +316,7 @@ EXTI->IMR |= EXTI_IMR_MR2_Msk;
 // enable the IRQ in NVIC 
 NVIC_EnableIRQ(EXTI2_IRQn);
 
-
+Uart_Init();
 ACCESS_CONTROLLER_InitRFID();
 SSD1306_InitOLED();
 
@@ -356,26 +329,8 @@ if(ACCESS_CONTROLLER_GetCurrentAccessControllerState() == UNINITIALIZED)
 ACCESS_CONTROLLER_Run();
 }
 
-while (1)
-{
+/* USER CODE END WHILE */
 
-/*
-M9: UART
-  - read keyboard input from Uart Ring buffer for new values (get written by interrupt)
-  - display 
-*/ 
-uint8_t receivedRXValue;
-
-if(Uart_ReadRXBuffer(&receivedRXValue))
-{
-  Uart_SendByte(receivedRXValue);
-}
-
-}
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-  /* USER CODE END 3 */
 }
 
 /**
