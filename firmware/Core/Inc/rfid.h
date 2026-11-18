@@ -48,9 +48,11 @@ typedef enum
     MFRC522_UID_VALID = 0x0E,
     MFRC522_UID_INVALID = 0x0F,
     MFRC522_INVALID_ATQA_RESP_LENGTH = 0x10,
-    MFRC522_INVALID_ANTI_CL1_RESP_LENGTH = 0x11
-
-
+    MFRC522_INVALID_ANTI_CL1_RESP_LENGTH = 0x11,
+    MFRC522_FIFO_FULL = 0x12,
+    MFRC522_FIFO_EMPTY = 0x13,
+    MFRC522_FIFO_READ_ERROR = 0x14,
+    MFRC522_FIFO_WRITE_ERROR = 0x15
 
 } MFRC522Status;
 
@@ -62,16 +64,6 @@ typedef enum
     // Add required commands
 
 } MFRC522Command;
-
-typedef enum
-{
-    FIFO_OK = 0x00,
-    FIFO_FULL = 0x01,
-    FIFO_EMPTY = 0x02,
-    FIFO_READ_ERROR = 0x03,
-    FIFO_WRITE_ERROR = 0x04
-
-} FIFOBufferStatus;
 
 // better naming
 typedef enum
@@ -127,11 +119,11 @@ MFRC522Status MFRC522_ResetRxInterrupt(void);
 
 // FIFO Buffer
 
-FIFOBufferStatus MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length);
+MFRC522Status MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length);
 
-FIFOBufferStatus MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length);
+MFRC522Status MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length);
 
-FIFOBufferStatus MFRC522_ResetFIFOBuffer(void);
+MFRC522Status MFRC522_ResetFIFOBuffer(void);
 
 
 

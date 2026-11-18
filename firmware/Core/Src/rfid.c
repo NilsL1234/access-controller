@@ -249,7 +249,7 @@ MFRC522Status MFRC522_ExecuteCommand(MFRC522Command Command)
 
 }
 
-FIFOBufferStatus MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
+MFRC522Status MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
 {
     uint8_t FIFOLevelRegData = 0U;
     uint8_t FIFODataRegData = 0U;
@@ -259,7 +259,7 @@ FIFOBufferStatus MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
 
     if(FIFOLevelRegData < Length)
     {
-        return FIFO_EMPTY;
+        return MFRC522_FIFO_EMPTY;
     }
 
     // read FIFO 
@@ -268,14 +268,14 @@ FIFOBufferStatus MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
         MFRC522Status Status = MFRC522_ReadReg(FIFODataRegAddress, &FIFODataRegData);
         if (Status != MFRC522_OK)
         {
-            return FIFO_READ_ERROR;
+            return MFRC522_FIFO_READ_ERROR;
         } 
         Data[i] = FIFODataRegData;
     }
-    return FIFO_OK; 
+    return MFRC522_OK; 
 }
 
-FIFOBufferStatus MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
+MFRC522Status MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
 {
     uint8_t FIFOLevelRegData = 0U;
 
@@ -284,7 +284,7 @@ FIFOBufferStatus MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
 
     if((FIFOLevelRegData + Length) >= FIFOBufferSize)
     {
-        return FIFO_FULL;
+        return MFRC522_FIFO_FULL;
     }
     
     // write FIFO 
@@ -296,10 +296,10 @@ FIFOBufferStatus MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
             return FIFO_WRITE_ERROR;
         } 
     }
-    return FIFO_OK; 
+    return MFRC522_OK; 
 }
 
-FIFOBufferStatus MFRC522_ResetFIFOBuffer(void)
+MFRC522Status MFRC522_ResetFIFOBuffer(void)
 {
     uint8_t FlushBufferBitPos = 7U;
 
@@ -307,10 +307,10 @@ FIFOBufferStatus MFRC522_ResetFIFOBuffer(void)
 
     if (status == MFRC522_OK)
     {
-        return FIFO_OK;
+        return MFRC522_OK;
     }
     else {
-    return FIFO_WRITE_ERROR;
+    return MFRC522_FIFO_WRITE_ERROR;
     }
 }
 
@@ -446,8 +446,8 @@ MFRC522Status MFRC522_ChangeTxLastBits(uint8_t LengthTxLastByte)
 MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
 {
 
-    static MFRC522Status Status = MFRC522_OK;
-    static FIFOBufferStatus FIFOStatus = FIFO_OK;
+    MFRC522Status Status = MFRC522_OK;
+    static uint32_t StartRFIDRespTimer = 0U;
     static uint8_t ATQA [2] = {0U};
     const uint8_t ATQALength = 2U;
     static uint8_t AnticollisionCL1Resp [5] = {0U};
@@ -465,16 +465,16 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
         case RFID_REQA_SEND:
             uint8_t TxBitLengthREQA = 7U;
 
-            FIFOStatus = MFRC522_ResetFIFOBuffer();
-            if(FIFOStatus != FIFO_OK)
+            Status = MFRC522_ResetFIFOBuffer();
+            if(Status != MFRC522_OK)
             {
-                return MFRC522_FIFO_BUFFER_ERROR;
+                return Status;
             }
 
-            FIFOStatus = MFRC522_WriteFIFOBuffer(REQA, REQALength);
-            if(FIFOStatus != FIFO_OK)
+            Status = MFRC522_WriteFIFOBuffer(REQA, REQALength);
+            if(Status != MFRC522_OK)
             {
-                return MFRC522_FIFO_BUFFER_ERROR;
+                return Status;
             }
 
             Status = MFRC522_ChangeTxLastBits(TxBitLengthREQA);
@@ -554,19 +554,23 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             FIFOBufferStatus FIFOStatus = MFRC522_ReadFIFOBuffer(ATQA, ATQALength);
             if(FIFOStatus != FIFO_OK)
             {
-                return MFRC522_FIFO_BUFFER_ERROR;
+                return Status;
             }
 
             CurrentUIDSearchState = RFID_ANTICOLLISION_CL1_SEND;
             return MFRC522_OK;
         
         case RFID_ANTICOLLISION_CL1_SEND:
-            MFRC522_ChangeTxLastBits(0U);
-
-            FIFOStatus = MFRC522_WriteFIFOBuffer(AnticollisionCL1Req, AnticollisionCL1ReqLength);
-            if(FIFOStatus != FIFO_OK)
+            Status = MFRC522_ChangeTxLastBits(0U);
+            if(Status != MFRC522_OK)
             {
-                return MFRC522_FIFO_BUFFER_ERROR;
+                return Status;
+            }
+
+            Status = MFRC522_WriteFIFOBuffer(AnticollisionCL1Req, AnticollisionCL1ReqLength);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
             }
 
             CurrentUIDSearchState = RFID_ANTICOLLISION_CL1_WAITING;
@@ -602,8 +606,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             if(FIFOLevelRegData != AnticollisionCL1RespLength)
             {
                 CurrentUIDSearchState = RFID_INIT;
-                //better statusenum
-                return MFRC522_ERROR;
+                return MFRC522_INVALID_ANTI_CL1_RESP_LENGTH;
             }
 
             // check Error Reg (todo: check exact error bits)
@@ -613,10 +616,10 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             //    return MFRC522_ERROR;
             //}
 
-            FIFOStatus = MFRC522_ReadFIFOBuffer(AnticollisionCL1Resp, AnticollisionCL1RespLength);
-            if(FIFOStatus != FIFO_OK)
+            Status = MFRC522_ReadFIFOBuffer(AnticollisionCL1Resp, AnticollisionCL1RespLength);
+            if(Status != MFRC522_OK)
             {
-                return MFRC522_FIFO_BUFFER_ERROR;
+                return Status;
             }
 
             uint8_t BCC = AnticollisionCL1Resp[0]^
