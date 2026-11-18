@@ -46,7 +46,6 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     Core/Src/access_controller.c
-    Core/Src/button.c
     Core/Src/uart.c
     Core/Src/sensors.c
     Core/Src/rfid.c

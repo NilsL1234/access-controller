@@ -23,7 +23,6 @@
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
 #include "access_controller.h"
-#include "button.h"
 #include "uart.h"
 #include "sensors.h"
 #include "rfid.h"
@@ -91,9 +90,6 @@ I2C_HandleTypeDef* GetI2CHandleTypeDef(void)
   return &hi2c1;
 }
 
-
-
-
 /* USER CODE END 0 */
 
 /**
@@ -136,21 +132,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-/*
-M7-M8: Timebased Processes/Debounce/Interrupts
-  - setup
-  - rest in main loop
-*/
-
-const uint32_t DEBOUNCE_TIME_INTERVAL = 20U;
-const uint32_t LED2_TIME_INTERVAL = 2000U;
-
-GPIO_PinState AcceptedPinState = GPIO_PIN_SET; 
-
-bool LED2On = false;
-uint32_t StartTimeLed2On = 0U;
-uint32_t Counter = 0U;
 
 /*
 M9: UART:
@@ -377,50 +358,6 @@ ACCESS_CONTROLLER_Run();
 
 while (1)
 {
-
-/*
-M7-M8: Timebased Processes/Interrupts
-  - when button is pushed, LED is on for 2 seconds 
-  - push of button is tracked with interrupt
-  - race conditions are covered
-  - debounce of button push is implemented (after 20ms new button state is accepted)
-*/
-
-// deactivate interrupt to avoid race condition / critical section
-NVIC->ICER[0] = 1U << EXTI0_IRQn;
-
-// new pin state B0 accepted 
-if(((HAL_GetTick() - GetStartTimeDebounce()) >= DEBOUNCE_TIME_INTERVAL) && (GetCurrentPinState() != AcceptedPinState)) 
-{
-  AcceptedPinState = GetCurrentPinState();
-
-  if(AcceptedPinState == GPIO_PIN_RESET)
-  {
-    ++Counter;
-
-    Uart_SendString("countervalue:\r\n");
-    Uart_SendUint32(Counter);
-    Uart_SendString(newLine);
-
-    if(!LED2On)
-    {
-      GPIOA->BSRR = (uint32_t)LED2_PIN;
-      StartTimeLed2On = HAL_GetTick();
-      LED2On = true;
-    }        
-  } 
-}
-
-
-  // Activate interrupt again
-  NVIC->ISER[0] = 1U << EXTI0_IRQn;
-
-  // turn of led after time interval
-  if(((HAL_GetTick() - StartTimeLed2On) >= LED2_TIME_INTERVAL) && (LED2On == true))
-    {
-      GPIOA->BSRR = (uint32_t)LED2_PIN << 16U;
-      LED2On = false;
-    }
 
 /*
 M9: UART

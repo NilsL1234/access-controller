@@ -22,7 +22,6 @@
 #include "stm32f4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "button.h"
 #include "uart.h"
 #include "rfid.h"
 /* USER CODE END Includes */
@@ -202,26 +201,6 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
-
-void EXTI0_IRQHandler(void)
-{
-  //clean pending register
-  EXTI->PR = EXTI_PR_PR0_Msk;
-
-  //check input register and set current pin state
-  if((GPIOB->IDR & GPIO_IDR_ID0_Msk) != 0U)
-  {
-    SetCurrentPinState(GPIO_PIN_SET);
-  }
-  else {
-    SetCurrentPinState(GPIO_PIN_RESET);
-  }
-  
-  SetStartTimeDebounce();
-  
-  IncreaseInterruptCounter();
-  
-}
 
 /* EXTI2_IRQHandler:
   - triggers with IRQ from MFRC522 when a value is written 
