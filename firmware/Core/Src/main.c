@@ -413,24 +413,6 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(RFID_RST_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
-  
-  // enable the clock for SYSCFG (hangs on APB2) | is done by cube already
-  RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-
-  // Clean EXTI0 and set it for port B (EXTICR = External Interrupt Configuration Register)
-  SYSCFG->EXTICR[0] &= ~(SYSCFG_EXTICR1_EXTI0_Msk);
-  SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI0_PB;
-
-  // set Falling and Rising Trigger Selection Register for EXTI0
-  EXTI->FTSR |= EXTI_FTSR_TR0_Msk;
-  EXTI->RTSR |= EXTI_RTSR_TR0_Msk;
-
-  // set Interrupt Mask Register so the trigger can be used as interrupt 
-  EXTI->IMR |= EXTI_IMR_MR0_Msk;
-
-  // enable the IRQ in NVIC 
-  NVIC->ISER[0] = 1U << EXTI0_IRQn;
-
   /* USER CODE END MX_GPIO_Init_2 */
 }
 
