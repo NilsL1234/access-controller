@@ -415,6 +415,22 @@ SSD1306_Status SSD1306_DisplayCurrentState(void)
             SSD1306_SendData(BorderStartEndOpen, EMPTY_BYTES_START_END_9CHARS);
             return SSD1306_OK;
 
+        case FAULT:    // displays: "ERROR"
+            uint8_t BorderStartEndFault[EMPTY_BYTES_START_END_5CHARS];
+            memset(BorderStartEndFault, 0xFF, sizeof(BorderStartEndFault));
+            SSD1306_SendData(BorderStartEndFault, EMPTY_BYTES_START_END_5CHARS);
+            SSD1306_SendData(CharE, CHAR_RASTER);
+            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
+            SSD1306_SendData(CharR, CHAR_RASTER);
+            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
+            SSD1306_SendData(CharR, CHAR_RASTER);
+            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
+            SSD1306_SendData(CharO, CHAR_RASTER);
+            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
+            SSD1306_SendData(CharR, CHAR_RASTER);
+            SSD1306_SendData(BorderStartEndFault, EMPTY_BYTES_START_END_5CHARS);
+            return SSD1306_OK;
+
         case UNINITIALIZED: // TODO
              return SSD1306_OK;
         default:
