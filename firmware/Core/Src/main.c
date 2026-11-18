@@ -133,11 +133,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-/*
-M13: MFRC522 Driver
-*/
 
-// enable interrupt: 
+// Enable interrupt for RFID (updating CurrentUIDSearchState): 
 
 // clean EXTI2 and set it for port C
 SYSCFG->EXTICR[0] &= ~(SYSCFG_EXTICR1_EXTI2_Msk);
@@ -151,6 +148,7 @@ EXTI->IMR |= EXTI_IMR_MR2_Msk;
 
 // enable the IRQ in NVIC 
 NVIC_EnableIRQ(EXTI2_IRQn);
+
 
 // Start PWM for Servo
 HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
