@@ -552,7 +552,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             }
 
             // check ATQA/FIFO length
-            FIFOLevelRegData = 0U;
+            uint8_t FIFOLevelRegData = 0U;
             Status = MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
             if(Status != MFRC522_OK)
             {
@@ -700,7 +700,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             }      
         default: return MFRC522_RFID_INVALID_STATE_ERROR;
     }
-
+    }
     return MFRC522_RFID_INVALID_STATE_ERROR;
 }
 
