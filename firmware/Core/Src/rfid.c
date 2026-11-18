@@ -150,6 +150,11 @@ MFRC522Status MFRC522_ReadRegBit(uint8_t RegAddress, uint8_t BitPosition, bool *
 
     MFRC522Status Status = MFRC522_ReadReg(RegAddress, &RegData);
 
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
     if((RegData & BitMask) != 0U)
     {
     *BitSet = true;
@@ -158,18 +163,7 @@ MFRC522Status MFRC522_ReadRegBit(uint8_t RegAddress, uint8_t BitPosition, bool *
     *BitSet = false;
     }
 
-    switch(Status)
-    {
-        case MFRC522_OK:
-            return MFRC522_OK;
-        case MFRC522_ERROR:
-            return MFRC522_ERROR;
-        case MFRC522_BUSY:
-            return MFRC522_BUSY;
-        case MFRC522_TIMEOUT:
-            return MFRC522_TIMEOUT;
-        default: return MFRC522_ERROR;
-    }
+    return MFRC522_OK;
 }
 
 MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool SetBit)
@@ -185,7 +179,7 @@ MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool 
 
     if(Status != MFRC522_OK)
     {
-        return MFRC522_ERROR;
+        return Status;
     }
     
     if(SetBit)
@@ -199,18 +193,7 @@ MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool 
 
     Status = MFRC522_WriteReg(RegAddress, RegData);
 
-    switch(Status)
-    {
-        case MFRC522_OK:
-            return MFRC522_OK;
-        case MFRC522_ERROR:
-            return MFRC522_ERROR;
-        case MFRC522_BUSY:
-            return MFRC522_BUSY;
-        case MFRC522_TIMEOUT:
-            return MFRC522_TIMEOUT;
-        default: return MFRC522_ERROR;
-    }
+    return Status;
 
 }
 
@@ -255,7 +238,11 @@ MFRC522Status MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
     uint8_t FIFODataRegData = 0U;
 
     // check that FIFO is not empty
-    MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+    MFRC522Status Status = MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+    if (Status != MFRC522_OK)
+        {
+            return MFRC522_FIFO_READ_ERROR;
+        } 
 
     if(FIFOLevelRegData < Length)
     {
@@ -265,7 +252,7 @@ MFRC522Status MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length)
     // read FIFO 
     for(uint8_t i=0; i<Length; ++i)
     {
-        MFRC522Status Status = MFRC522_ReadReg(FIFODataRegAddress, &FIFODataRegData);
+        Status = MFRC522_ReadReg(FIFODataRegAddress, &FIFODataRegData);
         if (Status != MFRC522_OK)
         {
             return MFRC522_FIFO_READ_ERROR;
@@ -280,7 +267,11 @@ MFRC522Status MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
     uint8_t FIFOLevelRegData = 0U;
 
     // check that FIFO is not full
-    MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+    MFRC522Status Status = MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+    if (Status != MFRC522_OK)
+        {
+            return MFRC522_FIFO_READ_ERROR;
+        } 
 
     if((FIFOLevelRegData + Length) >= FIFOBufferSize)
     {
@@ -290,10 +281,10 @@ MFRC522Status MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length)
     // write FIFO 
     for(uint8_t i=0; i<Length; ++i)
     {
-        MFRC522Status Status = MFRC522_WriteReg(FIFODataRegAddress, Data[i]);
+        Status = MFRC522_WriteReg(FIFODataRegAddress, Data[i]);
         if (Status != MFRC522_OK)
         {
-            return FIFO_WRITE_ERROR;
+            return MFRC522_FIFO_WRITE_ERROR;
         } 
     }
     return MFRC522_OK; 
@@ -303,9 +294,9 @@ MFRC522Status MFRC522_ResetFIFOBuffer(void)
 {
     uint8_t FlushBufferBitPos = 7U;
 
-    MFRC522Status status = MFRC522_WriteRegBit(FIFOLevelRegAddress, FlushBufferBitPos, true);
+    MFRC522Status Status = MFRC522_WriteRegBit(FIFOLevelRegAddress, FlushBufferBitPos, true);
 
-    if (status == MFRC522_OK)
+    if (Status == MFRC522_OK)
     {
         return MFRC522_OK;
     }
@@ -321,76 +312,88 @@ MFRC522Status MFRC522_SetRxInterruptEnable(bool enable)
     MFRC522Status Status = MFRC522_OK;
 
     if(enable)
-   {
-    Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 1U);
-   }
-   else {
-    Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 0U);
-   }
-   return Status; 
+    {
+        Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 1U);
+    }
+    else {
+        Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 0U);
+    }
+    return Status; 
 }
 
 MFRC522Status MFRC522_InitTransceive(void)
 {
 
-// enable Tx1 in TxControlRegister:
-uint8_t Tx1RFEnPos = 0U;
-MFRC522Status Status = MFRC522_WriteRegBit(TxControlRegAddress, Tx1RFEnPos, 1U);
+    // enable Tx1 in TxControlRegister:
+    uint8_t Tx1RFEnPos = 0U;
+    MFRC522Status Status = MFRC522_WriteRegBit(TxControlRegAddress, Tx1RFEnPos, 1U);
 
-if(Status != MFRC522_OK)
-{
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
+    // enable Tx2 in TxControlRegister:
+    uint8_t Tx2RFEnPos = 1U;
+    Status = MFRC522_WriteRegBit(TxControlRegAddress, Tx2RFEnPos, 1U);
+
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
+    // Enable RxIEn in ComIEnReg (Rx as Interrupt)
+
+    //uint8_t RxIEnPos = 5U;
+    //Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 1U);
+
+    Status = MFRC522_SetRxInterruptEnable(true);
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
+    // force 100 ASK
+    uint8_t Force100ASKPos = 6U;
+    Status = MFRC522_WriteRegBit(TxASKRegAddress, Force100ASKPos, 1U);
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
+    // Reset RcvOff
+
+    uint8_t RcvOffPos = 5U;
+    Status = MFRC522_WriteRegBit(CommandRegAddress, RcvOffPos, 0U);
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }
+
+    // ignore invalid received data stream (less than 4 bits)
+
+    uint8_t RxNoErrPos = 3U;
+    Status = MFRC522_WriteRegBit(RxModeRegAddress, RxNoErrPos, 1U);
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }  
+
+    Status = MFRC522_ResetFIFOBuffer();
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }  
+
+    Status = MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
+    if(Status != MFRC522_OK)
+    {
+        return Status;
+    }  
+
+    CurrentUIDSearchState = RFID_INIT;
+
     return Status;
-}
-
-// enable Tx2 in TxControlRegister:
-uint8_t Tx2RFEnPos = 1U;
-Status = MFRC522_WriteRegBit(TxControlRegAddress, Tx2RFEnPos, 1U);
-
-if(Status != MFRC522_OK)
-{
-    return Status;
-}
-
-// Enable RxIEn in ComIEnReg (Rx as Interrupt)
-
-//uint8_t RxIEnPos = 5U;
-//Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 1U);
-
-Status = MFRC522_SetRxInterruptEnable(true);
-
-if(Status != MFRC522_OK)
-{
-    return Status;
-}
-
-// force 100 ASK
-uint8_t Force100ASKPos = 6U;
-MFRC522_WriteRegBit(TxASKRegAddress, Force100ASKPos, 1U);
-
-// Reset RcvOff
-
-uint8_t RcvOffPos = 5U;
-MFRC522_WriteRegBit(CommandRegAddress, RcvOffPos, 0U);
-
-
-// ignore invalid received data stream (less than 4 bits)
-
-uint8_t RxNoErrPos = 3U;
-Status = MFRC522_WriteRegBit(RxModeRegAddress, RxNoErrPos, 1U);
-
-if(Status != MFRC522_OK)
-{
-    return Status;
-}  
-
-MFRC522_ResetFIFOBuffer();
-
-Status = MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
-
-CurrentUIDSearchState = RFID_INIT;
-
-return Status;
-
 }
 
 MFRC522Status MFRC522_StartTransceive(void)
@@ -419,7 +422,6 @@ MFRC522Status MFRC522_ChangeTxLastBits(uint8_t LengthTxLastByte)
     }
 
     MFRC522Status Status = MFRC522_ReadReg(BitFramingRegAddress, &BitFramingRegData);
-
     if(Status != MFRC522_OK)
     {
         return Status;
@@ -485,10 +487,13 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
 
             CurrentUIDSearchState = RFID_ATQA_WAITING;
 
-            static uint32_t StartRFIDRespTimer = 0U;
             StartRFIDRespTimer = HAL_GetTick();
 
-            MFRC522_SetRxInterruptEnable(true);
+            Status = MFRC522_SetRxInterruptEnable(true);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
             Status = MFRC522_StartTransceive();
 
             if(Status != MFRC522_OK)
@@ -501,44 +506,62 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
 
         case RFID_ATQA_WAITING:
 
-            uint8_t CommandRegData = 0U;
-            uint8_t FIFOLevelRegData = 0U;
+            // TODO: use error reg
             uint8_t ErrorRegData = 0U;
-            uint8_t ComIEnRegData = 0U;
-            uint8_t ComIrqRegData = 0U;
 
-            MFRC522Status Status = MFRC522_ReadReg(CommandRegAddress, &CommandRegData);
-            MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
-            MFRC522_ReadReg(ErrorRegAddress, &ErrorRegData);
-
-            MFRC522_ReadReg(ComIEnRegAddress, &ComIEnRegData);
-            MFRC522_ReadReg(ComIrqRegAddress, &ComIrqRegData);
-
+            Status = MFRC522_ReadReg(ErrorRegAddress, &ErrorRegData);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
             
             
             if((HAL_GetTick() - StartRFIDRespTimer) > MaxRespTimeRFID)
             {
-                MFRC522_SetRxInterruptEnable(false);
-                MFRC522_ExecuteCommand(IDLE_COMMAND);
-                MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
+                Status = MFRC522_SetRxInterruptEnable(false);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
+                Status = MFRC522_ExecuteCommand(IDLE_COMMAND);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
+                Status = MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
         
-                MFRC522_ResetRxInterrupt();
+                Status = MFRC522_ResetRxInterrupt();
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
                 CurrentUIDSearchState = RFID_INIT;
             }
                 
             return MFRC522_OK;
-            
+        
+        // RFID_ATQA_AVAILABLE gets reached via Interrupt
         case RFID_ATQA_AVAILABLE:
-            MFRC522_ResetRxInterrupt();
+            Status = MFRC522_ResetRxInterrupt();
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
 
             // check ATQA/FIFO length
             FIFOLevelRegData = 0U;
-            MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+            Status = MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
             if(FIFOLevelRegData != ATQALength)
             {
                 CurrentUIDSearchState = RFID_INIT;
-                //better statusenum
-                return MFRC522_ERROR;
+                return MFRC522_INVALID_ATQA_RESP_LENGTH;
             }
 
             // TODO!!!
@@ -551,8 +574,8 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             //}
 
             // read ATQA from FIFO buffer
-            FIFOBufferStatus FIFOStatus = MFRC522_ReadFIFOBuffer(ATQA, ATQALength);
-            if(FIFOStatus != FIFO_OK)
+            Status = MFRC522_ReadFIFOBuffer(ATQA, ATQALength);
+            if(Status != MFRC522_OK)
             {
                 return Status;
             }
@@ -573,8 +596,13 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
                 return Status;
             }
 
+            StartRFIDRespTimer = HAL_GetTick();
             CurrentUIDSearchState = RFID_ANTICOLLISION_CL1_WAITING;
-            MFRC522_SetRxInterruptEnable(true);
+            Status = MFRC522_SetRxInterruptEnable(true);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
             Status = MFRC522_StartTransceive();
             if(Status != MFRC522_OK)
             {
@@ -587,11 +615,27 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             if((HAL_GetTick() - StartRFIDRespTimer) > MaxRespTimeRFID)
             {
                 
-                MFRC522_SetRxInterruptEnable(false);
-                MFRC522_ExecuteCommand(IDLE_COMMAND);
-                MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
+                Status = MFRC522_SetRxInterruptEnable(false);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
+                Status = MFRC522_ExecuteCommand(IDLE_COMMAND);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
+                Status = MFRC522_ExecuteCommand(TRANSCEIVE_COMMAND);
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
         
-                MFRC522_ResetRxInterrupt();
+                Status = MFRC522_ResetRxInterrupt();
+                if(Status != MFRC522_OK)
+                {
+                    return Status;
+                }
                 CurrentUIDSearchState = RFID_INIT;
             }
 
@@ -599,10 +643,18 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
         
         case RFID_ANTICOLLISION_CL1_AVAILABLE:
 
-            MFRC522_ResetRxInterrupt();
+            Status = MFRC522_ResetRxInterrupt();
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
 
             FIFOLevelRegData = 0U;     
-            MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+            Status = MFRC522_ReadReg(FIFOLevelRegAddress, &FIFOLevelRegData);
+            if(Status != MFRC522_OK)
+            {
+                return Status;
+            }
             if(FIFOLevelRegData != AnticollisionCL1RespLength)
             {
                 CurrentUIDSearchState = RFID_INIT;
@@ -643,6 +695,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             }
             else 
             {
+                CurrentUIDSearchState = RFID_INIT;
                 return MFRC522_RFID_BCC_ERROR;
             }      
         default: return MFRC522_RFID_INVALID_STATE_ERROR;
