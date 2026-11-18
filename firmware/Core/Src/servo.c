@@ -15,7 +15,9 @@ static const uint32_t UnlockedClosedTimerLimit = 30000U;
 Servo_Status SERVO_UnlockDoor(void)
 {
     if(((SENSORS_GetBoltState() == BOLT_LOCKED) && (SENSORS_GetDoorState()==DOOR_CLOSED))||
-       ((SENSORS_GetBoltState() == BOLT_BETWEEN) && (SENSORS_GetDoorState()==DOOR_OPEN)))
+       ((SENSORS_GetBoltState() == BOLT_LOCKED) && (SENSORS_GetDoorState()==DOOR_OPEN))||
+       ((SENSORS_GetBoltState() == BOLT_BETWEEN) && (SENSORS_GetDoorState()==DOOR_OPEN)) 
+    )
     {
         TIM2->CCR3 = 1270;
         return SERVO_OK;
