@@ -60,20 +60,44 @@ For the debugging process I also tryed to stay away from using the AI to gain mo
 
 
 
+## UART diagnostics
+
+Status and error messages are available through the ST-LINK
+virtual COM port. Use a serial terminal with these settings:
+
+- Baud rate: 115200
+- Format: 8N1
+- Flow control: none
+
+Connect first, then reset the board to see startup messages.
+
+### Example: macOS with Screen
+
+Find the device and connect using its actual path:
+
+```bash
+ls /dev/cu.usbmodem*
+screen /dev/cu.usbmodem1303 115200
+```
+
+To quit, press Ctrl+A, release, then press `\`.
+Confirm if prompted.
+
+To manage an existing session:
+
+```bash
+screen -ls
+screen -r SESSION_ID
+screen -S SESSION_ID -X quit
+```
+
+Replace SESSION_ID with the identifier from `screen -ls`.
+The last command terminates the session and releases the port.
+
+On other operating systems, use a serial terminal with the
+settings above. These instructions were tested on macOS.
 
 
-
-
-
-
-## Komponenten:
-
-
-
-
-## Funktionsweise:
-
-
-
+testline
 
 
