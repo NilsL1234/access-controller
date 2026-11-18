@@ -134,14 +134,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 /*
-M10: Servo and PWM
-  - first calibration of servo for locked and unlocked states
-  - NOT FINISHED
-*/
-  
-HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-
-/*
 M12: SPI basics - reading register
 - send address of a register via SPI to the MFRC522 to read the content
 - read ComIEnReg as example:
@@ -315,6 +307,9 @@ EXTI->IMR |= EXTI_IMR_MR2_Msk;
 
 // enable the IRQ in NVIC 
 NVIC_EnableIRQ(EXTI2_IRQn);
+
+// Start PWM for Servo
+HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 
 Uart_Init();
 ACCESS_CONTROLLER_InitRFID();
