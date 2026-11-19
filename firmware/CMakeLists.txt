@@ -42,9 +42,7 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
 )
 
-# Add sources to executable
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
+set(APP_SOURCES
     Core/Src/access_controller.c
     Core/Src/uart.c
     Core/Src/sensors.c
@@ -53,8 +51,14 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Core/Src/oled.c
     Core/Src/chars.c
     Core/Src/log.c
-
 )
+
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user sources here
+    ${APP_SOURCES}
+)
+
+set_source_files_properties(${APP_SOURCES} PROPERTIES COMPILE_OPTIONS "-Wextra")
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
