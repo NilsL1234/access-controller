@@ -21,16 +21,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdbool.h>
 #include "access_controller.h"
 #include "uart.h"
-#include "sensors.h"
-#include "rfid.h"
 #include "oled.h"
-#include "chars.h"
-#include "log.h"
-#include <string.h>
-
 
 /* USER CODE END Includes */
 
