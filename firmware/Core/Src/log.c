@@ -53,7 +53,7 @@ void LOG_Write(LOG_Level Level, const char *Source, const char *Message)
         {
             return;
         }
-        if (Uart_SendString(" ms] WARN") != UART_OK)
+        if (Uart_SendString(" ms] WARN ") != UART_OK)
         {
             return;
         }
@@ -84,7 +84,7 @@ void LOG_Write(LOG_Level Level, const char *Source, const char *Message)
         {
             return;
         }
-        if (Uart_SendString(" ms] ERROR") != UART_OK)
+        if (Uart_SendString(" ms] ERROR ") != UART_OK)
         {
             return;
         }

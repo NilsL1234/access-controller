@@ -25,9 +25,7 @@ static const uint8_t NoCoDataContinuationByte = 0x40;
 
 SSD1306_Status SSD1306_SendCommand(uint8_t Command, const uint8_t *Parameters, uint8_t ParameterLength)
 {
-
     // with arguements
-
     // NoCoCommandContinuationByte
     //
     uint8_t TxMinByteAmout = 2U; 
@@ -44,8 +42,6 @@ SSD1306_Status SSD1306_SendCommand(uint8_t Command, const uint8_t *Parameters, u
         TxCommand[i+TxMinByteAmout] = Parameters[i];
     }
     }
-
-    
 
     HAL_StatusTypeDef HAL_Status = HAL_I2C_Master_Transmit(GetI2CHandleTypeDef(), SSD1306_Address, TxCommand, ParameterLength+TxMinByteAmout, TxI2CTimeoutDuration);
 
@@ -292,52 +288,6 @@ SSD1306_Status SSD1306_DisplayCurrentState(void)
             SSD1306_SendData(CharD, CHAR_RASTER);
             SSD1306_SendData(BorderStartEndReady, EMPTY_BYTES_START_END_7CHARS);
             return SSD1306_OK;
-
-        /*    
-        case UNLOCKING:  // "UNLOCKING"
-            uint8_t BorderStartEndUnlocking[EMPTY_BYTES_START_END_9CHARS];
-            memset(BorderStartEndUnlocking, 0xFF, sizeof(BorderStartEndUnlocking));
-            SSD1306_SendData(BorderStartEndUnlocking, EMPTY_BYTES_START_END_9CHARS);
-            SSD1306_SendData(CharU, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharN, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharL, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharO, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharC, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharK, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharI, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharN, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharG, CHAR_RASTER);
-            SSD1306_SendData(BorderStartEndUnlocking, EMPTY_BYTES_START_END_9CHARS);
-            return SSD1306_OK;
-
-        case LOCKING:   // "LOCKING"
-            uint8_t BorderStartEndLocking[EMPTY_BYTES_START_END_7CHARS];
-            memset(BorderStartEndLocking, 0xFF, sizeof(BorderStartEndLocking));
-            SSD1306_SendData(BorderStartEndLocking, EMPTY_BYTES_START_END_7CHARS);
-            SSD1306_SendData(CharL, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharO, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharC, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharK, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharI, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharN, CHAR_RASTER);
-            SSD1306_SendData(BorderBetweenChars, BORDER_BETWEEN_CHARS);
-            SSD1306_SendData(CharG, CHAR_RASTER);
-            SSD1306_SendData(BorderStartEndLocking, EMPTY_BYTES_START_END_7CHARS);
-            return SSD1306_OK;
-        */
 
         case LOCKED_BLOCKED:    // displays: "BLOCKED"
             uint8_t BorderStartEndBlocked[EMPTY_BYTES_START_END_7CHARS];

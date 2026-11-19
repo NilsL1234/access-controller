@@ -7,6 +7,7 @@
 #include "log.h"
 # include <stdint.h>
 # include <stdbool.h>
+#include <stdio.h>
 
 
 // Variables
@@ -65,6 +66,30 @@ bool ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed(void)
     return BlockCounterMessageDisplayed;
 }
 
+static const char *GetStateString(ACCESS_CONTROLLER_State State)
+{
+    switch (State) {
+        case LOCKED_READY:
+            return "LOCKED_READY";
+        case UNLOCKING:
+            return "UNLOCKING";
+        case LOCKING:
+            return "LOCKING";
+        case LOCKED_BLOCKED:
+            return "LOCKED_BLOCKED";
+        case UNLOCKED_DOOR_CLOSED:
+            return "UNLOCKED_DOOR_CLOSED";
+        case UNLOCKED_DOOR_OPEN:
+            return "UNLOCKED_DOOR_OPEN";
+        case UNINITIALIZED:
+            return "UNINITIALIZED";
+        case FAULT:
+            return "FAULT";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 /**
 //TODO: finish comment
 * @brief
@@ -77,6 +102,9 @@ bool ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed(void)
 */
 static void ChangeState(ACCESS_CONTROLLER_State NewState)
 {
+
+    ACCESS_CONTROLLER_State PreviousState = CurrentAccessControllerState;
+
     switch (NewState) 
     {
         case LOCKED_READY:
@@ -193,9 +221,15 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
             LOG_Write(LOG_ERROR, "CTRL", "Controller fault; Servo stopped");
             CurrentAccessControllerState = FAULT;
             break;
-                 
-
     }
+
+    if(CurrentAccessControllerState != PreviousState)
+    {
+        char Message[64];
+        snprintf(Message, sizeof(Message), "New state %s", GetStateString(CurrentAccessControllerState));
+        LOG_Write(LOG_INFO, "CTRL", Message);
+    }
+
     SSD1306_DisplayCurrentState();
 }
 

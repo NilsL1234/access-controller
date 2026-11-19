@@ -54,8 +54,6 @@ bool SERVO_CheckLockProcessTimerReached(void)
 {
     if((HAL_GetTick()-LockProcessTimer) >= LockProcessTimerLimit)
     {
-        // todo: propper error handling
-        Uart_SendString("Servo: Lock Timer is reached! \r\n");
         return true;
     }
     else {
@@ -67,8 +65,6 @@ bool SERVO_CheckUnlockedClosedTimerReached(void)
 {
     if((HAL_GetTick()-UnlockedClosedTimer) >= UnlockedClosedTimerLimit)
     {
-        // todo: propper error handling
-        Uart_SendString("Servo: Unlocked Closed Timer is reached! \r\n");
         return true;
     }
     else {
@@ -79,8 +75,6 @@ bool SERVO_CheckUnlockedClosedTimerReached(void)
 void SERVO_StopServo(void)
 {
     HAL_TIM_PWM_Stop(GetTIMHandleTypeDef(), TIM_CHANNEL_3);
-    Uart_SendString("Servo: Servo is stopped! \r\n");
-
 }
 
 

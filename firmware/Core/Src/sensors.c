@@ -1,6 +1,7 @@
 #include "sensors.h"
 #include "uart.h"
 #include "main.h"
+#include "log.h"
 #include <stdbool.h>
 
 
@@ -109,21 +110,18 @@ bool SENSORS_UpdateLockState(void)
 
     AcceptedBoltState = CurrentBoltState;
     
-    if(AcceptedBoltState == BOLT_INIT)
-    {
-        Uart_SendString("Bolt state: Init \r\n");
-    }
-    else if (AcceptedBoltState == BOLT_LOCKED) {
-        Uart_SendString("Bolt state: Locked \r\n");
+
+    if (AcceptedBoltState == BOLT_LOCKED) {
+        LOG_Write(LOG_INFO, "SENSOR", "Bolt locked");
     }
     else if (AcceptedBoltState == BOLT_UNLOCKED) {
-        Uart_SendString("Bolt state: Unlocked \r\n");
+        LOG_Write(LOG_INFO, "SENSOR", "Bolt unlocked");
     }
     else if (AcceptedBoltState == BOLT_BETWEEN) {
-        Uart_SendString("Bolt state: Between \r\n");
+        LOG_Write(LOG_INFO, "SENSOR", "Bolt between");
     }
     else{
-        Uart_SendString("Bolt state: Invalid \r\n");
+        LOG_Write(LOG_INFO, "SENSOR", "Invalid AcceptedBoltState");
     }
     }
 
@@ -159,19 +157,15 @@ bool SENSORS_UpdateDoorState(void)
     {
 
     AcceptedDoorState = CurrentDoorState;
-    
-    if(AcceptedDoorState == DOOR_INIT)
-    {
-        Uart_SendString("Door state: Init \r\n");
-    }
-    else if (AcceptedDoorState == DOOR_CLOSED) {
-        Uart_SendString("Door state: Closed \r\n");
+       
+    if (AcceptedDoorState == DOOR_CLOSED) {
+        LOG_Write(LOG_INFO, "SENSOR", "Door closed");
     }
     else if (AcceptedDoorState == DOOR_OPEN) {
-        Uart_SendString("Door state: Open \r\n");
+        LOG_Write(LOG_INFO, "SENSOR", "Door open");
     }
     else{
-        Uart_SendString("Door state: Invalid \r\n");
+        LOG_Write(LOG_INFO, "SENSOR", "Invalid AcceptedDoorState");
     }
     }
 
