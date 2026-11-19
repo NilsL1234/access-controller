@@ -9,21 +9,11 @@
 
 // 8 Bit address
 static const uint8_t SSD1306_Address = 0x78;
-
-static const uint32_t TxI2CCommandSizeData = 2U;
 static const uint32_t TxI2CTimeoutDuration = 20000U;
-
-
-
-
 
 // D/C#: command=0 | data=1
 // Co: 0=no more Co | 1= more Co
 
-// Co is set: more control bytes will follow and next byte is a command
-static const uint8_t CoCommandContinuationByte = 0x80;
-// Co is set: more control bytes will follow and next byte is data for GDDRAM
-static const uint8_t CoDataContinuationByte = 0xC0;
 // Co is unset: no more control bytes will follow and next byte is a command
 static const uint8_t NoCoCommandContinuationByte = 0x00;
 // Co is unset: no more control bytes will follow and next byte is data for GDDRAM

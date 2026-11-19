@@ -333,8 +333,6 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 }
                 bool UIDIsValid = false;
 
-                MFRC522Status MFRC522StatusValidation =  MFRC522_ValidateUID(&DetectedUID, DetectedUID.UIDLength, &UIDIsValid);
-
                 // todo: MFRC522StatusValidation errorhandling
 
                 if(UIDIsValid)

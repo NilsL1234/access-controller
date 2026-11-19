@@ -15,7 +15,6 @@ static const uint8_t CommandMsk = 0x0fU;
 static const uint8_t TransiveCommand = 0x03U;
 static const uint8_t TransiveCommandPos = 2U;
 static const uint8_t TransiveCommandMsk = TransiveCommand << TransiveCommandPos;
-static const uint8_t IdleCommand = 0U;
 static const uint8_t IdleCommandMsk = 0U;
 static const uint8_t SoftResetCommand = 0x0fU;
 static const uint8_t SoftResetCommandPos = 0U;
