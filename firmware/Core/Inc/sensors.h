@@ -29,13 +29,6 @@ typedef enum
     DOOR_INVALID
 } DoorState;
 
-typedef enum
-{
-    DOOR_SENSOR_INIT,
-    DOOR_SENSOR_ACTIVE,
-    DOOR_SENSOR_INACTIVE
-
-} DoorSensorState;
 
 BoltState SENSORS_GetBoltState(void);
 

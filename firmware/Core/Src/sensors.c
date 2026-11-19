@@ -80,10 +80,10 @@ static DoorState SENSORS_DetermineCurrentDoorState(void)
 {
     if((DoorSensor_GPIO_Port->IDR & DoorSensor_Pin) == 0U)
     {
-        return DOOR_SENSOR_ACTIVE;
+        return DOOR_CLOSED;
     }
     else {
-        return DOOR_SENSOR_INACTIVE;
+        return DOOR_OPEN;
     }
 }
 
