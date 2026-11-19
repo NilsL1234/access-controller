@@ -98,14 +98,6 @@ UART_Status Uart_SendByte(uint8_t byte)
     return UART_OK;
 }
 
-uint8_t Uart_ReceiveByte(void)
-{
-    while((USART2->SR & USART_SR_RXNE_Msk) == 0U)
-    {
-    }
-    return USART2->DR; 
-}
-
 UART_Status Uart_SendUint32(uint32_t value)
 {
     if(value==0U)
