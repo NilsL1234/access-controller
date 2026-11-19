@@ -3,18 +3,6 @@
 #include <stddef.h>
 #include "stm32f4xx_hal.h"
 
-volatile uint8_t uart_rx_value = 0U;
-
-void Uart_SetRx(uint8_t rx)
-{
-    uart_rx_value = rx;
-}
-
-uint8_t Uart_GetRx(void)
-{
-    return uart_rx_value;
-}
-
 void Uart_Init(void)
 {
     /*
