@@ -512,7 +512,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             if(Status != MFRC522_OK)
             {
                 return Status;
-            
+            }
             
             if((HAL_GetTick() - StartRFIDRespTimer) > MaxRespTimeRFID)
             {
@@ -699,7 +699,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
             }      
         default: return MFRC522_RFID_INVALID_STATE_ERROR;
     }
-    }
+    
     return MFRC522_RFID_INVALID_STATE_ERROR;
 }
 
