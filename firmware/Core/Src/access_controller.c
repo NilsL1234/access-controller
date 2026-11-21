@@ -4,11 +4,11 @@
 # include "servo.h"
 # include "main.h"
 # include "oled.h"
-#include "log.h"
+# include "log.h"
+#include <stddef.h>
 # include <stdint.h>
 # include <stdbool.h>
 #include <stdio.h>
-
 
 // Variables
 
@@ -17,7 +17,7 @@ static uint8_t CurrentBlockCounter = 0U;
 static const uint8_t MaxBlockCounter = 3U;
 static uint32_t BlockStartTick = 0U;
 static const uint32_t InitBlockInverval = 10000U;
-// Amount of seconds the door is locked (doubles every time MaxBlockCounter is reached)
+// Amount of ms the door is locked (doubles every time MaxBlockCounter is reached)
 static uint32_t CurrentBlockInverval = InitBlockInverval;
 
 // Block counter message display time
@@ -88,6 +88,24 @@ static const char *GetStateString(ACCESS_CONTROLLER_State State)
         default:
             return "UNKNOWN";
     }
+}
+
+
+static bool GetUIDString(const uint8_t *UID, size_t UIDSize, char* String, size_t StringSize)
+{
+    if((UID == NULL) || (UIDSize == 0) || (UIDSize > MAX_UID_LENGTH) || (String == NULL) ||  StringSize < UIDSize * 3 + 1)
+    {
+        return false;
+    }
+
+    size_t Pos = 0;
+
+    for(size_t i=0; i<UIDSize; ++i)
+    {
+        Pos += snprintf(&String[Pos], StringSize - Pos, "%02X ", UID[i]);
+    }
+
+    return true;
 }
 
 /**
@@ -172,6 +190,10 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
                 CurrentBlockCounter = 0U;
                 BlockStartTick = HAL_GetTick();
                 CurrentAccessControllerState = LOCKED_BLOCKED;
+
+                char Message[64];
+                snprintf(Message, sizeof(Message), "Blocked for %lu ms", CurrentBlockInverval);
+                LOG_Write(LOG_INFO, "CTRL", Message);
                 break;
             }
             else {
@@ -233,10 +255,9 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
     SSD1306_DisplayCurrentState();
 }
 
-// todo error handling
 ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_InitRFID(void)
 {
-//todo: error handling
+
 MFRC522Status Status = MFRC522_ExecuteCommand(SOFT_RESET_COMMAND);
 
 if(Status == MFRC522_OK)
@@ -251,6 +272,7 @@ if(Status != MFRC522_OK)
     return ACCESS_CONTROLLER_ERROR;
 }
 
+LOG_Write(LOG_INFO, "RFID", "Init successful");
 return ACCESS_CONTROLLER_OK;
 
 }
@@ -270,8 +292,6 @@ if(SENSORS_UpdateLockState() == false)
     ChangeState(FAULT);
     return ACCESS_CONTROLLER_ERROR;
 }
-
-
 
 if((SENSORS_GetBoltState()== BOLT_LOCKED) && (SENSORS_GetDoorState() == DOOR_CLOSED))
 {
@@ -293,7 +313,7 @@ else if ((SENSORS_GetBoltState()== BOLT_UNLOCKED) && (SENSORS_GetDoorState() == 
     ChangeState(UNLOCKED_DOOR_OPEN);
     return ACCESS_CONTROLLER_OK;
 }
-//TODO: HANDLE BETWEEN AND INVALID!
+
 else if ((SENSORS_GetBoltState()== BOLT_BETWEEN) && (SENSORS_GetDoorState() == DOOR_OPEN)) {
     ChangeState(UNLOCKING);
     return ACCESS_CONTROLLER_OK;
@@ -374,6 +394,17 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
 
                 if(UIDIsValid)
                 {
+                    char UIDString [MAX_UID_LENGTH * 3 + 1];
+                    if(GetUIDString(DetectedUID.UID, DetectedUID.UIDLength, UIDString, sizeof(UIDString)))
+                    {
+                        char Message[64];
+                        snprintf(Message, sizeof(Message), "Valid UID detected %s", UIDString);
+                        LOG_Write(LOG_INFO, "RFID", Message);
+                    }
+                    else {
+                        LOG_Write(LOG_WARN, "CTRL", "Logging valid UID failed");
+                    }
+
                     CurrentBlockCounter = 0U;
                     CurrentBlockInverval = InitBlockInverval;
                     ChangeState(UNLOCKING);
@@ -386,7 +417,25 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 }
                 else {
                 // invalid UID detected
+
+                // Logging invalid UID
+                char UIDString [MAX_UID_LENGTH * 3 + 1];
+                if(GetUIDString(DetectedUID.UID, DetectedUID.UIDLength, UIDString, sizeof(UIDString)))
+                {
+                    char Message[64];
+                    snprintf(Message, sizeof(Message), "Invalid UID detected %s", UIDString);
+                    LOG_Write(LOG_INFO, "RFID", Message);
+                }
+                else {
+                    LOG_Write(LOG_WARN, "CTRL", "Logging invalid UID failed");
+                }
+
                 ++ CurrentBlockCounter;
+                char BlockCounterLog[64];
+                snprintf(BlockCounterLog, sizeof(BlockCounterLog), "Current number of blocks %u/%u", CurrentBlockCounter, MaxBlockCounter);
+                LOG_Write(LOG_INFO, "RFID", BlockCounterLog);
+
+
                 UIDValidationStartTick = HAL_GetTick();
                 BlockCounterDisplayStartTick = HAL_GetTick();
                 BlockCounterMessageDisplayed = false;
