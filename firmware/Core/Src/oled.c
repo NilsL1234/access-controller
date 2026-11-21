@@ -4,12 +4,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "log.h"
 
 
 
 // 8 Bit address
 static const uint8_t SSD1306_Address = 0x78;
-static const uint32_t TxI2CTimeoutDuration = 20000U;
+static const uint32_t TxI2CTimeoutDuration = 50U;
 
 // D/C#: command=0 | data=1
 // Co: 0=no more Co | 1= more Co
@@ -106,9 +107,6 @@ static void SSD1306_ResetRAM(void)
 
 SSD1306_Status SSD1306_InitOLED(void)
 {
-
-
-
     // enable charge pump
     if(SSD1306_SendCommand(ChargePumpSettingCommand, NULL, 0U) != SSD1306_OK)
     {
@@ -158,30 +156,9 @@ SSD1306_Status SSD1306_InitOLED(void)
         return SSD1306_ERROR;
     }
 
-    
-
     // clear all pixels:
-
     SSD1306_ResetRAM();
-
-
-/*
-    uint8_t PageStartCommandBase = 0xB0U;
-
-    for(uint8_t i=0; i<NUMBER_OF_PAGES; ++i)
-    {
-        uint8_t PageStartCommand = PageStartCommandBase|i;
-        SSD1306_SendCommand(PageStartCommand, NULL, 0U);
-
-        // prepare Tx byte for page clear
-        uint8_t ClearByte = 0xFF;
-        uint8_t TxClearPage[128];
-        memset(TxClearPage, ClearByte, sizeof(TxClearPage));
-
-        // clear current page
-        SSD1306_SendData(TxClearPage, sizeof(TxClearPage));
-    }  
-*/        
+    LOG_Write(LOG_INFO, "OLED", "Init successful");
     return SSD1306_OK;
 }
 

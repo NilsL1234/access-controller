@@ -24,6 +24,7 @@
 #include "access_controller.h"
 #include "uart.h"
 #include "oled.h"
+#include "log.h"
 
 /* USER CODE END Includes */
 
@@ -147,11 +148,17 @@ NVIC_EnableIRQ(EXTI2_IRQn);
 HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
 
 Uart_Init();
+
+if(SSD1306_InitOLED() != SSD1306_OK)
+{
+  LOG_Write(LOG_WARN, "OLED", "Init failed; continuing without display");
+}
+
 ACCESS_CONTROLLER_InitRFID();
-SSD1306_InitOLED();
 
 while (1) {
 
+// Wait till sensors are debounced
 if(ACCESS_CONTROLLER_GetCurrentAccessControllerState() == UNINITIALIZED)
 {
   ACCESS_CONTROLLER_InitState();
