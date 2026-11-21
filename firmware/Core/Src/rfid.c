@@ -23,7 +23,7 @@ static const uint8_t SoftResetCommandMsk = SoftResetCommand << SoftResetCommandP
 
 // RFID
 
-static UIDSearchState CurrentUIDSearchState = RFID_OFF;
+static volatile UIDSearchState CurrentUIDSearchState = RFID_OFF;
 static const uint8_t REQA [] = {0x26U};
 static const uint8_t REQALength = 1U;
 static const uint32_t MaxRespTimeRFID = 20U;
