@@ -23,7 +23,7 @@ bool SERVO_CheckLockProcessTimerReached(void);
 
 bool SERVO_CheckUnlockedClosedTimerReached(void);
 
-Servo_Status SERVO_UnlockDoor(void);
+void SERVO_UnlockDoor(void);
 
 Servo_Status SERVO_LockDoor(void);
 
