@@ -163,7 +163,7 @@ if(ACCESS_CONTROLLER_GetCurrentAccessControllerState() == UNINITIALIZED)
 {
   ACCESS_CONTROLLER_InitState();
 }
-ACCESS_CONTROLLER_Run();
+(void)ACCESS_CONTROLLER_Run();
 }
 
 /* USER CODE END WHILE */
