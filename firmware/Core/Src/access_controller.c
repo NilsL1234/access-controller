@@ -108,6 +108,49 @@ static bool GetUIDString(const uint8_t *UID, size_t UIDSize, char* String, size_
     return true;
 }
 
+static void HandleFault(ACCESS_CONTROLLER_Fault Fault)
+{
+    SERVO_StopServo();
+    CurrentFault = Fault;
+    CurrentAccessControllerState = FAULT;
+
+    switch (Fault)
+    {
+        case ACCESS_CONTROLLER_FAULT_NONE:
+            LOG_Write(LOG_ERROR, "CTRL", "Controller fault without specified cause; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_LOCK_TIMEOUT:
+            LOG_Write(LOG_ERROR, "CTRL", "Timeout during locking; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_UNLOCK_TIMEOUT:
+            LOG_Write(LOG_ERROR, "CTRL", "Timeout during unlocking; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_BOLT_SENSORS:
+            LOG_Write(LOG_ERROR, "CTRL", "Contradictory bolt sensor states; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_RFID_INIT:
+            LOG_Write(LOG_ERROR, "CTRL", "RFID initialization failed; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_STATE:
+            LOG_Write(LOG_ERROR, "CTRL", "Invalid controller state; Servo stopped");
+            break;
+
+        case ACCESS_CONTROLLER_FAULT_SERVO:
+            LOG_Write(LOG_ERROR, "CTRL", "Invalid sensor state during SERVO_LockDoor; Servo stopped");
+            break;
+
+        default:
+            LOG_Write(LOG_ERROR, "CTRL", "Unknown fault code; Servo stopped");
+            break;
+    }
+    SSD1306_DisplayCurrentState();
+}
+
 /**
 //TODO: finish comment
 * @brief
@@ -173,7 +216,12 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
             (CurrentAccessControllerState == UNLOCKED_DOOR_OPEN) ||
             (CurrentAccessControllerState == UNLOCKED_DOOR_CLOSED))
             {
-                SERVO_LockDoor();
+                if(SERVO_LockDoor() != SERVO_OK)
+                {
+                    HandleFault(ACCESS_CONTROLLER_FAULT_SERVO);
+                    break;
+                }
+
                 SERVO_StartLockProcessTimer();
                 CurrentAccessControllerState = LOCKING;
                 break;
@@ -201,47 +249,10 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
                 break;
             }
         
-        case FAULT:
-            SERVO_StopServo();
-
-            switch (CurrentFault)
-            {
-                case ACCESS_CONTROLLER_FAULT_NONE:
-                    LOG_Write(LOG_ERROR, "CTRL", "Controller fault without specified cause; Servo stopped");
-                    break;
-
-                case ACCESS_CONTROLLER_FAULT_LOCK_TIMEOUT:
-                    LOG_Write(LOG_ERROR, "CTRL", "Timeout during locking; Servo stopped");
-                    break;
-
-                case ACCESS_CONTROLLER_FAULT_UNLOCK_TIMEOUT:
-                    LOG_Write(LOG_ERROR, "CTRL", "Timeout during unlocking; Servo stopped");
-                    break;
-
-                case ACCESS_CONTROLLER_FAULT_BOLT_SENSORS:
-                    LOG_Write(LOG_ERROR, "CTRL", "Contradictory bolt sensor states; Servo stopped");
-                    break;
-
-                case ACCESS_CONTROLLER_FAULT_RFID_INIT:
-                    LOG_Write(LOG_ERROR, "CTRL", "RFID initialization failed; Servo stopped");
-                    break;
-
-                case ACCESS_CONTROLLER_FAULT_STATE:
-                    LOG_Write(LOG_ERROR, "CTRL", "Invalid controller state; Servo stopped");
-                    break;
-
-                default:
-                    LOG_Write(LOG_ERROR, "CTRL", "Unknown fault code; Servo stopped");
-                    break;
-            }
-
-            CurrentAccessControllerState = FAULT;
-            break;
+        // case FAULT: is entered only via HandleFault()
 
         default:    
-            SERVO_StopServo();
-            LOG_Write(LOG_ERROR, "CTRL", "Controller fault; Servo stopped");
-            CurrentAccessControllerState = FAULT;
+            HandleFault(ACCESS_CONTROLLER_FAULT_STATE);
             break;
     }
 
@@ -267,8 +278,7 @@ if(Status == MFRC522_OK)
 
 if(Status != MFRC522_OK)
 {
-    CurrentFault = ACCESS_CONTROLLER_FAULT_RFID_INIT;
-    ChangeState(FAULT);
+    HandleFault(ACCESS_CONTROLLER_FAULT_RFID_INIT);
     return ACCESS_CONTROLLER_ERROR;
 }
 
@@ -288,8 +298,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_InitState(void)
 SENSORS_UpdateDoorState();
 if(SENSORS_UpdateLockState() == false)
 {
-    CurrentFault = ACCESS_CONTROLLER_FAULT_BOLT_SENSORS;
-    ChangeState(FAULT);
+    HandleFault(ACCESS_CONTROLLER_FAULT_BOLT_SENSORS);
     return ACCESS_CONTROLLER_ERROR;
 }
 
@@ -344,8 +353,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
 
     if(SENSORS_UpdateLockState() == false)
     {
-        CurrentFault = ACCESS_CONTROLLER_FAULT_BOLT_SENSORS;
-        ChangeState(FAULT);
+        HandleFault(ACCESS_CONTROLLER_FAULT_BOLT_SENSORS);
         return ACCESS_CONTROLLER_ERROR;
     }
 
@@ -455,9 +463,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
             else {
                 if(SERVO_CheckLockProcessTimerReached())
                 {
-                    CurrentFault = ACCESS_CONTROLLER_FAULT_UNLOCK_TIMEOUT;
-                    ChangeState(FAULT);
-                    // todo: better enum
+                    HandleFault(ACCESS_CONTROLLER_FAULT_UNLOCK_TIMEOUT);
                     return ACCESS_CONTROLLER_ERROR;
                 }
                 else{
@@ -507,8 +513,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 else {
                     if(SERVO_CheckLockProcessTimerReached() == true)
                     {
-                        CurrentFault = ACCESS_CONTROLLER_FAULT_LOCK_TIMEOUT;
-                        ChangeState(FAULT);
+                        HandleFault(ACCESS_CONTROLLER_FAULT_LOCK_TIMEOUT);
                         return ACCESS_CONTROLLER_ERROR;
                     }
                     else{
@@ -534,8 +539,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
             return ACCESS_CONTROLLER_ERROR;
 
         default:
-            CurrentFault = ACCESS_CONTROLLER_FAULT_STATE;
-            ChangeState(FAULT);
+            HandleFault(ACCESS_CONTROLLER_FAULT_STATE);
             return ACCESS_CONTROLLER_ERROR;
     
     }
