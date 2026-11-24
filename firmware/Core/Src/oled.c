@@ -58,7 +58,10 @@ SSD1306_Status SSD1306_SendCommand(uint8_t Command, const uint8_t *Parameters, u
 
 SSD1306_Status SSD1306_SendData(const uint8_t *Data, uint16_t Length)
 {
-
+if(Data == NULL || Length > BYTES_TOTAL)
+{
+    return SSD1306_ERROR;
+}
 // todo: check given length
 uint8_t TxData [BYTES_TOTAL+1];
 TxData[0] = NoCoDataContinuationByte;
