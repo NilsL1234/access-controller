@@ -19,6 +19,8 @@ static uint32_t BlockStartTick = 0U;
 static const uint32_t InitBlockInverval = 10000U;
 // Amount of ms the door is locked (doubles every time MaxBlockCounter is reached)
 static uint32_t CurrentBlockInverval = InitBlockInverval;
+// Block interval caps at 5min
+static const uint32_t MaxBlockInterval = 300000U;
 
 // Block counter message display time
 static const uint32_t BlockCounterDisplayTime = 300U;
@@ -171,7 +173,11 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
         case LOCKED_READY:
             if(CurrentAccessControllerState == LOCKED_BLOCKED)
             {
-                CurrentBlockInverval *= 2;
+            CurrentBlockInverval *= 2;
+            if(CurrentBlockInverval > MaxBlockInterval)
+                {
+                    CurrentBlockInverval = MaxBlockInterval;
+                }
             }
             CurrentAccessControllerState = LOCKED_READY;
             UIDValidationStartTick = HAL_GetTick();
