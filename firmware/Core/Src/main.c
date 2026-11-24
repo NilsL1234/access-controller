@@ -161,7 +161,7 @@ while (1) {
 // Wait till sensors are debounced
 if(ACCESS_CONTROLLER_GetCurrentAccessControllerState() == UNINITIALIZED)
 {
-  ACCESS_CONTROLLER_InitState();
+  (void)ACCESS_CONTROLLER_InitState();
 }
 (void)ACCESS_CONTROLLER_Run();
 }
