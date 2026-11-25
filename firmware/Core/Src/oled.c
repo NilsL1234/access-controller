@@ -172,8 +172,7 @@ SSD1306_Status SSD1306_DisplayTryBlocked(void)
     if((HAL_GetTick() - ACCESS_CONTROLLER_GetBlockCounterDisplayStartTick()) > ACCESS_CONTROLLER_GetBlockCounterDisplayTime() &&
         (ACCESS_CONTROLLER_GetBlockCounterMessageDisplayed() == false))
     {
-        // TODO: Error handling
-        SSD1306_DisplayCurrentState();
+        (void)SSD1306_DisplayCurrentState();
         ACCESS_CONTROLLER_SetBlockCounterMessageDisplayed(true);
         return SSD1306_OK;
     }
