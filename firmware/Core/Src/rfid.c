@@ -695,6 +695,10 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
 
 MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsValid)
 {
+    if((UID == NULL) || (IsValid == NULL))
+    {
+        return MFRC522_INVALID_PARAMETER;
+    }
 
     *IsValid = false;
 
