@@ -150,6 +150,10 @@ static void HandleFault(ACCESS_CONTROLLER_Fault Fault)
             LOG_Write(LOG_ERROR, "CTRL", "Error in RFID communication; Servo stopped");
             break;
 
+        case ACCESS_CONTROLLER_FAULT_RFID_VALIDATION:
+            LOG_Write(LOG_ERROR, "CTRL", "UID validation failed; Servo stopped");
+            break;
+
         default:
             LOG_Write(LOG_ERROR, "CTRL", "Unknown fault code; Servo stopped");
             break;
@@ -401,7 +405,12 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                     case MFRC522_UID_DETECTED:
                         {
                         bool UIDIsValid = false;
-                        (void)MFRC522_ValidateUID(&DetectedUID, DetectedUID.UIDLength, &UIDIsValid);
+                        if(MFRC522_ValidateUID(&DetectedUID, DetectedUID.UIDLength, &UIDIsValid) != MFRC522_OK)
+                        {
+                            HandleFault(ACCESS_CONTROLLER_FAULT_RFID_VALIDATION);
+                            return ACCESS_CONTROLLER_ERROR;
+                        }
+
                         if(UIDIsValid)
                         {
                             char UIDString [MAX_UID_LENGTH * 3 + 1];
@@ -457,8 +466,6 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                         HandleFault(ACCESS_CONTROLLER_FAULT_RFID_COMMUNICATION);
                         return ACCESS_CONTROLLER_ERROR;
                 }
-
-                // todo: MFRC522StatusValidation errorhandling
             }
             return ACCESS_CONTROLLER_OK;
 
