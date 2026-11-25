@@ -161,15 +161,12 @@ static void HandleFault(ACCESS_CONTROLLER_Fault Fault)
     SSD1306_DisplayCurrentState();
 }
 
-/**
-//TODO: finish comment
-* @brief
-* This function updates the state of the access controller
-  and handles necessary transition steps:   - updating CurrentAccessControllerState
-                                            - SERVO_UnlockDoor()
-                                            - SERVO_LockDoor()
-                                            - SERVO_StartLockProcessTimer()
-                                            - SERVO_StartUnlockedClosedTimer()
+/*
+ChangeState:
+- changes the access controller state to NewState if the transition is allowed
+- handles the transition steps (servo, timers, block counter)
+- logs the new state and updates the display
+- FAULT is only entered via HandleFault(), not via ChangeState()
 */
 static void ChangeState(ACCESS_CONTROLLER_State NewState)
 {
