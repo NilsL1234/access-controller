@@ -472,7 +472,6 @@ static MFRC522Status MFRC522_DetectUIDStep(UID *DetectedUID)
 
         case RFID_ATQA_WAITING:
 
-            // TODO: use error reg
             uint8_t ErrorRegData = 0U;
 
             Status = MFRC522_ReadReg(ErrorRegAddress, &ErrorRegData);
