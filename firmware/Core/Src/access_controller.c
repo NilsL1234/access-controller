@@ -306,7 +306,7 @@ ACCESS_CONTROLLER_InitState:
 ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_InitState(void)
 {
 
-SENSORS_UpdateDoorState();
+(void)SENSORS_UpdateDoorState();
 if(SENSORS_UpdateLockState() == false)
 {
     HandleFault(ACCESS_CONTROLLER_FAULT_BOLT_SENSORS);
@@ -359,8 +359,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
         return ACCESS_CONTROLLER_ERROR;
     }
 
-    //todo: error handling sensors
-    SENSORS_UpdateDoorState();
+    (void)SENSORS_UpdateDoorState();
 
     if(SENSORS_UpdateLockState() == false)
     {
