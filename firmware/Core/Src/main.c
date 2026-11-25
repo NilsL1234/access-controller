@@ -128,7 +128,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-// Enable interrupt for RFID (updating CurrentUIDSearchState): 
+// Enable interrupt for RFID (updating CurrentUIDSearchState):
 
 // clean EXTI2 and set it for port C
 SYSCFG->EXTICR[0] &= ~(SYSCFG_EXTICR1_EXTI2_Msk);
@@ -137,17 +137,20 @@ SYSCFG->EXTICR[0] |= SYSCFG_EXTICR1_EXTI2_PC;
 // set Falling Trigger Selection Register for EXTI2
 EXTI->FTSR |= EXTI_FTSR_TR2_Msk;
 
-// set Interrupt Mask Register so the trigger can be used as interrupt 
+// set Interrupt Mask Register so the trigger can be used as interrupt
 EXTI->IMR |= EXTI_IMR_MR2_Msk;
 
-// enable the IRQ in NVIC 
+// enable the IRQ in NVIC
 NVIC_EnableIRQ(EXTI2_IRQn);
 
+Uart_Init();
 
 // Start PWM for Servo
-HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-
-Uart_Init();
+if (HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3) != HAL_OK)
+{
+  LOG_Write(LOG_ERROR, "SERVO", "PWM start failed");
+  Error_Handler();
+}
 
 if(SSD1306_InitOLED() != SSD1306_OK)
 {
