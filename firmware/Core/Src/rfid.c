@@ -1,6 +1,6 @@
 # include "rfid.h"
-# include "uart.h"
 # include "main.h"
+
 
 static const uint8_t SPISizeTransferData = 2U;
 static const uint32_t SPITimeoutTransferDurationMS = 10U;
@@ -30,6 +30,7 @@ static const uint32_t MaxRespTimeRFID = 20U;
 static const uint8_t AnticollisionCL1Req [] = {0x93U, 0x20U};
 static const uint8_t AnticollisionCL1ReqLength = 2U;
 
+static MFRC522Status LastError = MFRC522_OK;
 
 static const UID WhiteListUID [] = {
 {.UID = {0xe7, 0x20, 0x75, 0x33}, .UIDLength = 4U}, // card
@@ -46,6 +47,11 @@ UIDSearchState MFRC522_GetCurrentUIDSearchState(void)
 void MFRC522_SetCurrentUIDSearchState(UIDSearchState State)
 {
     CurrentUIDSearchState = State;
+}
+
+MFRC522Status MFRC522_GetLastError(void)
+{
+    return LastError;
 }
 
 MFRC522Status MFRC522_ReadReg(uint8_t RegAddress, uint8_t *RegData)
@@ -436,8 +442,6 @@ MFRC522Status MFRC522_ChangeTxLastBits(uint8_t LengthTxLastByte)
 
 // gets used in loop?
 // requires interrupt for IRQ
-
-
 
 /* Function: MFRC522_DetectUID
                 - detects 4 Bytes long UIDs (expandable for 7 and 10)

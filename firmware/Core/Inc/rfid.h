@@ -92,6 +92,8 @@ UIDSearchState MFRC522_GetCurrentUIDSearchState(void);
 
 void MFRC522_SetCurrentUIDSearchState(UIDSearchState State);
 
+MFRC522Status MFRC522_GetLastError(void);
+
 // Register reading/writing
 
 MFRC522Status MFRC522_ReadReg(uint8_t RegAddress, uint8_t *RegData);
@@ -124,8 +126,6 @@ MFRC522Status MFRC522_ReadFIFOBuffer(uint8_t *Data, uint8_t Length);
 MFRC522Status MFRC522_WriteFIFOBuffer(const uint8_t *Data, uint8_t Length);
 
 MFRC522Status MFRC522_ResetFIFOBuffer(void);
-
-
 
 
 // Transceive UID
