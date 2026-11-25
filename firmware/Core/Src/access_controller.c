@@ -149,10 +149,6 @@ static void HandleFault(ACCESS_CONTROLLER_Fault Fault)
         case ACCESS_CONTROLLER_FAULT_RFID_COMMUNICATION:
             LOG_Write(LOG_ERROR, "CTRL", "Error in RFID communication; Servo stopped");
             break;
-        
-        case ACCESS_CONTROLLER_FAULT_RFID_VALIDATION:
-            LOG_Write(LOG_ERROR, "CTRL", "UID validation failed; Servo stopped");
-            break;
 
         default:
             LOG_Write(LOG_ERROR, "CTRL", "Unknown fault code; Servo stopped");
