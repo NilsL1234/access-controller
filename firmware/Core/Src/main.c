@@ -154,7 +154,7 @@ if(SSD1306_InitOLED() != SSD1306_OK)
   LOG_Write(LOG_WARN, "OLED", "Init failed; continuing without display");
 }
 
-ACCESS_CONTROLLER_InitRFID();
+(void)ACCESS_CONTROLLER_InitRFID();
 
 while (1) {
 
