@@ -530,15 +530,6 @@ static MFRC522Status MFRC522_DetectUIDStep(UID *DetectedUID)
                 return MFRC522_INVALID_ATQA_RESP_LENGTH;
             }
 
-            // TODO!!!
-            // check Error Reg (todo: check exact error bits)
-            //uint8_t ErrorRegData = 0U;
-            //MFRC522_ReadReg(ErrorRegAddress, &ErrorRegData);
-            //if(ErrorRegData != 0U)
-            //{
-            //    return MFRC522_ERROR;
-            //}
-
             // read ATQA from FIFO buffer
             Status = MFRC522_ReadFIFOBuffer(ATQA, ATQALength);
             if(Status != MFRC522_OK)
@@ -626,13 +617,6 @@ static MFRC522Status MFRC522_DetectUIDStep(UID *DetectedUID)
                 CurrentUIDSearchState = RFID_INIT;
                 return MFRC522_INVALID_ANTI_CL1_RESP_LENGTH;
             }
-
-            // check Error Reg (todo: check exact error bits)
-            //MFRC522_ReadReg(ErrorRegAddress, &ErrorRegData);
-            //if(ErrorRegData != 0U)
-            //{
-            //    return MFRC522_ERROR;
-            //}
 
             Status = MFRC522_ReadFIFOBuffer(AnticollisionCL1Resp, AnticollisionCL1RespLength);
             if(Status != MFRC522_OK)
