@@ -104,7 +104,7 @@ MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool 
 
 MFRC522Status MFRC522_ExecuteCommand(MFRC522Command Command);
 
-MFRC522Status MFRC522_SetRxInterrupt(bool enable);
+MFRC522Status MFRC522_SetRxInterruptEnable(bool Enable);
 
 
 

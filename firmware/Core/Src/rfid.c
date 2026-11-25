@@ -310,13 +310,13 @@ MFRC522Status MFRC522_ResetFIFOBuffer(void)
     }
 }
 
-MFRC522Status MFRC522_SetRxInterruptEnable(bool enable)
+MFRC522Status MFRC522_SetRxInterruptEnable(bool Enable)
 {
 
     uint8_t RxIEnPos = 5U;
     MFRC522Status Status = MFRC522_OK;
 
-    if(enable)
+    if(Enable)
     {
         Status = MFRC522_WriteRegBit(ComIEnRegAddress, RxIEnPos, 1U);
     }
