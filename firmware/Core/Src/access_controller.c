@@ -34,7 +34,7 @@ static uint32_t UIDValidationStartTick = 0U;
 // Error handling
 static ACCESS_CONTROLLER_Fault CurrentFault = ACCESS_CONTROLLER_FAULT_NONE;
 
- 
+
 // Functions
 
 // Getter
@@ -173,7 +173,7 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
 
     ACCESS_CONTROLLER_State PreviousState = CurrentAccessControllerState;
 
-    switch (NewState) 
+    switch (NewState)
     {
         case LOCKED_READY:
             if(CurrentAccessControllerState == LOCKED_BLOCKED)
@@ -189,7 +189,7 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
             break;
 
         case UNLOCKING:
-            
+
             SERVO_UnlockDoor();
             SERVO_StartLockProcessTimer();
             CurrentAccessControllerState = UNLOCKING;
@@ -208,14 +208,12 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
             break;
 
         case UNLOCKED_DOOR_OPEN:
-            switch (CurrentAccessControllerState) 
+            switch (CurrentAccessControllerState)
             {
                 case UNINITIALIZED:
-                    // TODO: implement alarm sound -> door should be closed and locked on init
                     CurrentAccessControllerState = UNLOCKED_DOOR_OPEN;
                     break;
                 case UNLOCKED_DOOR_CLOSED:
-                    // maybe here a timer alarm as well 
                     CurrentAccessControllerState = UNLOCKED_DOOR_OPEN;
                     break;
                 default: break;
@@ -259,10 +257,10 @@ static void ChangeState(ACCESS_CONTROLLER_State NewState)
                 // UART error could be added
                 break;
             }
-        
+
         // case FAULT: is entered only via HandleFault()
 
-        default:    
+        default:
             HandleFault(ACCESS_CONTROLLER_FAULT_STATE);
             break;
     }
@@ -301,7 +299,7 @@ return ACCESS_CONTROLLER_OK;
 /*
 ACCESS_CONTROLLER_InitState:
 - collects state of bolt/door sensors
-- sets access controller state accordingly 
+- sets access controller state accordingly
 */
 ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_InitState(void)
 {
@@ -319,12 +317,12 @@ if((SENSORS_GetBoltState()== BOLT_LOCKED) && (SENSORS_GetDoorState() == DOOR_CLO
     return ACCESS_CONTROLLER_OK;
 }
 else if ((SENSORS_GetBoltState()== BOLT_UNLOCKED) && (SENSORS_GetDoorState() == DOOR_CLOSED)) {
-    
+
     ChangeState(LOCKING);
     return ACCESS_CONTROLLER_OK;
 }
 else if ((SENSORS_GetBoltState()== BOLT_LOCKED) && (SENSORS_GetDoorState() == DOOR_OPEN)) {
-    
+
     ChangeState(UNLOCKING);
     return ACCESS_CONTROLLER_OK;
 }
@@ -350,7 +348,7 @@ return ACCESS_CONTROLLER_INITIALIZING_STATE;
 /*
 ACCESS_CONTROLLER_Run:
 - collects state of bolt/door sensors and RFID reader
-- updates the access controller state accordingly 
+- updates the access controller state accordingly
 */
 ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
 {
@@ -370,7 +368,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
     switch (CurrentAccessControllerState) {
 
         case LOCKED_READY:
-            // Check blockcounter: 
+            // Check blockcounter:
             if(CurrentBlockCounter >= MaxBlockCounter)
             {
                 ChangeState(LOCKED_BLOCKED);
@@ -394,7 +392,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 // check for UID -> unlocking
                 UID DetectedUID = {.UIDLength = 0U};
                 MFRC522Status MFRC522StatusDetection = MFRC522_DetectUID(&DetectedUID);
-                
+
 
                 switch (MFRC522StatusDetection)
                 {
@@ -455,7 +453,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                     case MFRC522_NO_UID_DETECTED:
                         UIDValidationStartTick = HAL_GetTick();
                         return ACCESS_CONTROLLER_OK;
-                        
+
                     case MFRC522_OK:
                         return ACCESS_CONTROLLER_OK;
                     default:
@@ -488,7 +486,7 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 ChangeState(UNLOCKED_DOOR_OPEN);
                 return ACCESS_CONTROLLER_OK;
             }
-            else if(SERVO_CheckUnlockedClosedTimerReached()) 
+            else if(SERVO_CheckUnlockedClosedTimerReached())
             {
                 ChangeState(LOCKING);
                 return ACCESS_CONTROLLER_OK;
@@ -531,9 +529,9 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                         return ACCESS_CONTROLLER_OK;
                     }
                 }
-        
+
         case LOCKED_BLOCKED:
-            // check if block time is reached  
+            // check if block time is reached
             if((HAL_GetTick() - BlockStartTick) >= CurrentBlockInverval)
             {
                 ChangeState(LOCKED_READY);
@@ -545,13 +543,13 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
 
         case UNINITIALIZED:
             return ACCESS_CONTROLLER_ERROR;
-        
+
         case FAULT:
             return ACCESS_CONTROLLER_ERROR;
 
         default:
             HandleFault(ACCESS_CONTROLLER_FAULT_STATE);
             return ACCESS_CONTROLLER_ERROR;
-    
+
     }
 }
