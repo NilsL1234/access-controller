@@ -395,7 +395,6 @@ MFRC522Status MFRC522_InitTransceive(void)
     {
         return Status;
     }  
-
     CurrentUIDSearchState = RFID_INIT;
 
     return Status;
@@ -448,7 +447,7 @@ MFRC522Status MFRC522_ChangeTxLastBits(uint8_t LengthTxLastByte)
                 - 
     
 */
-MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
+static MFRC522Status MFRC522_DetectUIDStep(UID *DetectedUID)
 {
 
     MFRC522Status Status = MFRC522_OK;
@@ -461,7 +460,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
     switch(CurrentUIDSearchState)
     {
         case RFID_OFF:
-            return MFRC522_OK;
+            return MFRC522_RFID_INVALID_STATE_ERROR;
 
         case RFID_INIT:
             CurrentUIDSearchState = RFID_REQA_SEND;
@@ -542,6 +541,7 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
                     return Status;
                 }
                 CurrentUIDSearchState = RFID_INIT;
+                return MFRC522_NO_UID_DETECTED;
             }
                 
             return MFRC522_OK;
@@ -640,8 +640,8 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
                     return Status;
                 }
                 CurrentUIDSearchState = RFID_INIT;
+                return MFRC522_NO_UID_DETECTED;
             }
-
             return MFRC522_OK;
         
         case RFID_ANTICOLLISION_CL1_AVAILABLE:
@@ -707,7 +707,29 @@ MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
     return MFRC522_RFID_INVALID_STATE_ERROR;
 }
 
-// TODO: validation info gets out via status and bool IsValid -> decide for one?
+MFRC522Status MFRC522_DetectUID(UID *DetectedUID)
+{
+    MFRC522Status Status = MFRC522_DetectUIDStep(DetectedUID);
+
+    switch (Status) {
+        case MFRC522_OK:
+        case MFRC522_UID_DETECTED:
+        case MFRC522_NO_UID_DETECTED:
+            return Status;
+        case MFRC522_INVALID_ATQA_RESP_LENGTH:
+        case MFRC522_INVALID_ANTI_CL1_RESP_LENGTH:
+        case MFRC522_RFID_BCC_ERROR:
+            LastError = Status;
+            return MFRC522_NO_UID_DETECTED;
+
+        default:
+            LastError = Status;
+            return Status;
+
+    
+    }
+}
+
 MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsValid)
 {
 
@@ -732,7 +754,7 @@ MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsVali
                 }
                 if(*IsValid)
                 {
-                    return MFRC522_UID_VALID;
+                    return MFRC522_OK;
                 }
             }
         }
@@ -755,7 +777,7 @@ MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsVali
                 }
                 if(*IsValid)
                 {
-                    return MFRC522_UID_VALID;
+                    return MFRC522_OK;
                 }
             }
         }
@@ -778,7 +800,7 @@ MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsVali
                 }
                 if(*IsValid)
                 {
-                    return MFRC522_UID_VALID;
+                    return MFRC522_OK;
                 }
             }
         }
@@ -786,7 +808,7 @@ MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsVali
     else {
         return MFRC522_INVALID_UID_LENGTH;
     }
-return MFRC522_UID_INVALID;
+return MFRC522_OK;
 
 }
 

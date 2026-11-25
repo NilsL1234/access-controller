@@ -45,14 +45,12 @@ typedef enum
     MFRC522_INVALID_UID_LENGTH = 0x0B,
     MFRC522_UID_DETECTED = 0x0C,
     MFRC522_NO_UID_DETECTED = 0x0D,
-    MFRC522_UID_VALID = 0x0E,
-    MFRC522_UID_INVALID = 0x0F,
-    MFRC522_INVALID_ATQA_RESP_LENGTH = 0x10,
-    MFRC522_INVALID_ANTI_CL1_RESP_LENGTH = 0x11,
-    MFRC522_FIFO_FULL = 0x12,
-    MFRC522_FIFO_EMPTY = 0x13,
-    MFRC522_FIFO_READ_ERROR = 0x14,
-    MFRC522_FIFO_WRITE_ERROR = 0x15
+    MFRC522_INVALID_ATQA_RESP_LENGTH = 0x0E,
+    MFRC522_INVALID_ANTI_CL1_RESP_LENGTH = 0x0F,
+    MFRC522_FIFO_FULL = 0x10,
+    MFRC522_FIFO_EMPTY = 0x11,
+    MFRC522_FIFO_READ_ERROR = 0x12,
+    MFRC522_FIFO_WRITE_ERROR = 0x13
 
 } MFRC522Status;
 
@@ -134,49 +132,24 @@ MFRC522Status MFRC522_StartTransceive(void);
 
 MFRC522Status MFRC522_InitTransceive(void);
 
+/**
+ * @brief  Advances the UID detection by one step (non-blocking).
+ *
+ * @param[out] DetectedUID  filled with the UID when MFRC522_UID_DETECTED is returned
+ *
+ * @retval MFRC522_OK               attempt in progress, call again
+ * @retval MFRC522_NO_UID_DETECTED  attempt finished, no valid card
+ *                                  (reason: MFRC522_GetLastError())
+ * @retval MFRC522_UID_DETECTED     attempt finished, UID in DetectedUID
+ * @return any other value: communication error with the reader
+ *
+ * @pre    Reader initialized with MFRC522_InitTransceive()
+ * @note   Call repeatedly from the main loop
+ * @note   Only 4-byte UIDs are supported
+ * @warning After a communication error the reader must be re-initialized
+ */
 MFRC522Status MFRC522_DetectUID(UID *DetectedUID);
 
 MFRC522Status MFRC522_ValidateUID(const UID *UID, size_t UIDLength, bool *IsValid);
-
-
-/*
-How do I get Card ID?
-
-1. Init MFRC522 (InitTransceive) and stm32 (InitInterrupt)
-    2. Write Request in FIFO
-    3. set StartSendBit
-    4. poll for RxFlag
-    5. Interrupt sets RxFlag
-6. Repeat 2-5
-7. Write any new command to end
-
- 
-
-
-
-
-
-
-
-
-
-???do I need: RxWait: wait until RF field is present if the TModeReg register’s TxWaitRF bit is set to logic 1
-
-*/
-
-
-
-// Status2Reg register FOR STATUS!
-
-
-// get Detect RFID 
-
-// SoftReset command
-
-// Idle command
-
-// Transceive command (stant with startbit)
-
-// Initfunction for using antenna usw
 
 # endif
