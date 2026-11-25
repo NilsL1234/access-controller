@@ -135,42 +135,6 @@ MFRC522Status MFRC522_WriteReg(uint8_t RegAddress, uint8_t RegData)
 
 }
 
-/*
-MFRC522_ReadRegBit:
-- reads a specific Bit for a Register
-- *BitSet is 1U when Bit is set (0U when reset)
-
-*/
-MFRC522Status MFRC522_ReadRegBit(uint8_t RegAddress, uint8_t BitPosition, bool *BitSet)
-{
-
-    if(BitPosition >= RegBitLength)
-    {
-        return MFRC522_INVALID_BIT_POSITION;
-    }
-
-    uint8_t BitMask = 1U << BitPosition;
-    uint8_t RegData = 0U;
-    
-
-    MFRC522Status Status = MFRC522_ReadReg(RegAddress, &RegData);
-
-    if(Status != MFRC522_OK)
-    {
-        return Status;
-    }
-
-    if((RegData & BitMask) != 0U)
-    {
-    *BitSet = true;
-    }
-    else {
-    *BitSet = false;
-    }
-
-    return MFRC522_OK;
-}
-
 MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool SetBit)
 {
     if(BitPosition >= RegBitLength)

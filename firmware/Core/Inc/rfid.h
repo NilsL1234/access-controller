@@ -97,8 +97,6 @@ MFRC522Status MFRC522_ReadReg(uint8_t RegAddress, uint8_t *RegData);
 
 MFRC522Status MFRC522_WriteReg(uint8_t RegAddress, uint8_t RegData);
 
-MFRC522Status MFRC522_ReadRegBit(uint8_t RegAddress, uint8_t BitPosition, bool *BitSet);
-
 MFRC522Status MFRC522_WriteRegBit(uint8_t RegAddress, uint8_t BitPosition, bool SetBit);
 
 MFRC522Status MFRC522_ExecuteCommand(MFRC522Command Command);
