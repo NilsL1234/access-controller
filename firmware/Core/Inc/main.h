@@ -58,7 +58,6 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
-//TODO: Check for better solution to get hspi2 in rfid.c
 SPI_HandleTypeDef* GetSPIHandleTypeDef(void);
 
 TIM_HandleTypeDef* GetTIMHandleTypeDef(void);

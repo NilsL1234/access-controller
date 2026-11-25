@@ -62,7 +62,6 @@ if(Data == NULL || Length > BYTES_TOTAL)
 {
     return SSD1306_ERROR;
 }
-// todo: check given length
 uint8_t TxData [BYTES_TOTAL+1];
 TxData[0] = NoCoDataContinuationByte;
 memcpy(&TxData[1], Data, Length);
@@ -230,7 +229,6 @@ SSD1306_Status SSD1306_DisplayTryBlocked(void)
         return SSD1306_OK;
     }
     else {
-    //todo: better error handling
     return SSD1306_ERROR;
     }
 }
@@ -351,7 +349,7 @@ SSD1306_Status SSD1306_DisplayCurrentState(void)
             SSD1306_SendData(BorderStartEndFault, EMPTY_BYTES_START_END_5CHARS);
             return SSD1306_OK;
 
-        case UNINITIALIZED: // TODO
+        case UNINITIALIZED:
              return SSD1306_OK;
         default:
             return SSD1306_ERROR;

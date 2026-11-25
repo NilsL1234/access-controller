@@ -11,7 +11,6 @@
 #define UID_LENGTH_10 10U
 
 // register addresses
-// todo: blacklist all reserved RegAddresses
 
 static const uint8_t RegBitLength = 8U;
 static const uint8_t LastValidRegAddress = 0x3B;

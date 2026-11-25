@@ -136,7 +136,7 @@ MFRC522Status MFRC522_WriteReg(uint8_t RegAddress, uint8_t RegData)
 }
 
 /*
-MFRC522_ReadRegBit:   TODO: TEST
+MFRC522_ReadRegBit:
 - reads a specific Bit for a Register
 - *BitSet is 1U when Bit is set (0U when reset)
 
@@ -692,7 +692,6 @@ static MFRC522Status MFRC522_DetectUIDStep(UID *DetectedUID)
                     DetectedUID->UID[i] = AnticollisionCL1Resp[i];
                 }
 
-                // TODO: Change to idle after test
                 CurrentUIDSearchState = RFID_INIT;
                 return MFRC522_UID_DETECTED;
             }
