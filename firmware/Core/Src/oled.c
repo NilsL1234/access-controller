@@ -20,6 +20,8 @@ static const uint8_t NoCoCommandContinuationByte = 0x00;
 // Co is unset: no more control bytes will follow and next byte is data for GDDRAM
 static const uint8_t NoCoDataContinuationByte = 0x40;
 
+static bool OLEDAvailable = false;
+
 
 
 
@@ -160,6 +162,7 @@ SSD1306_Status SSD1306_InitOLED(void)
 
     // clear all pixels:
     SSD1306_ResetRAM();
+    OLEDAvailable = true;
     LOG_Write(LOG_INFO, "OLED", "Init successful");
     return SSD1306_OK;
 }
@@ -167,6 +170,11 @@ SSD1306_Status SSD1306_InitOLED(void)
 // gets called when block counter is 1 or 2
 SSD1306_Status SSD1306_DisplayTryBlocked(void)
 {
+    if(OLEDAvailable == false)
+    {
+        return SSD1306_ERROR;
+    }
+
     uint8_t BlockCounter = ACCESS_CONTROLLER_GetCurrentBlockCounter();
 
     if((HAL_GetTick() - ACCESS_CONTROLLER_GetBlockCounterDisplayStartTick()) > ACCESS_CONTROLLER_GetBlockCounterDisplayTime() &&
@@ -234,6 +242,11 @@ SSD1306_Status SSD1306_DisplayTryBlocked(void)
 
 SSD1306_Status SSD1306_DisplayCurrentState(void)
 {
+    if(OLEDAvailable == false)
+    {
+        return SSD1306_ERROR;
+    }
+
     // config vertical mode to vertical mode
     SSD1306_SendCommand(AddressingModeCommand, AddressingModeVerticalArguement, 1);
     SSD1306_SendCommand(SetColumnStartEndCommand, ResetColumnStartEndArguement, 2);
