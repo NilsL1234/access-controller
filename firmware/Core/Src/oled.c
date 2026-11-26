@@ -29,7 +29,7 @@ SSD1306_Status SSD1306_SendCommand(uint8_t Command, const uint8_t *Parameters, u
     // with arguements
     // NoCoCommandContinuationByte
     //
-    uint8_t TxMinByteAmout = 2U; 
+    uint8_t TxMinByteAmout = 2U;
 
 
     uint8_t TxCommand [MAX_TX_COMMAND_LENGTH];
@@ -101,7 +101,7 @@ static void SSD1306_ResetRAM(void)
 
         // clear current page
         SSD1306_SendData(TxClearPage, sizeof(TxClearPage));
-    }  
+    }
 
 }
 
@@ -114,12 +114,12 @@ SSD1306_Status SSD1306_InitOLED(void)
     {
         return SSD1306_ERROR;
     }
-    
+
     if(SSD1306_SendCommand(ChargePumpEnableCommand, NULL, 0U) != SSD1306_OK)
     {
         return SSD1306_ERROR;
     }
-    
+
     if(SSD1306_SendCommand(EntireDisplayOnDisableCommand, NULL, 0U) != SSD1306_OK)
     {
         return SSD1306_ERROR;
@@ -141,13 +141,13 @@ SSD1306_Status SSD1306_InitOLED(void)
         return SSD1306_ERROR;
     }
 
-    
+
     if(SSD1306_SendCommand(AddressingModeCommand, AddressingModePageArguement, 1U) != SSD1306_OK)
     {
         return SSD1306_ERROR;
     }
 
-    
+
     if(SSD1306_SendCommand(SetLowerStartColumnPageModeCommand, NULL, 0U) != SSD1306_OK)
     {
         return SSD1306_ERROR;
@@ -234,14 +234,10 @@ SSD1306_Status SSD1306_DisplayTryBlocked(void)
 
 SSD1306_Status SSD1306_DisplayCurrentState(void)
 {
-    SSD1306_ResetRAM();
-
     // config vertical mode to vertical mode
     SSD1306_SendCommand(AddressingModeCommand, AddressingModeVerticalArguement, 1);
     SSD1306_SendCommand(SetColumnStartEndCommand, ResetColumnStartEndArguement, 2);
     SSD1306_SendCommand(SetPageStartEndCommand, ResetPageStartEndArguement, 2);
-
-
 
     switch (ACCESS_CONTROLLER_GetCurrentAccessControllerState())
     {
