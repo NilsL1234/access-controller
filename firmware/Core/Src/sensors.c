@@ -34,7 +34,7 @@ DoorState SENSORS_GetDoorState(void)
 /*
     SENSORS_DetermineCurrentBoltState:
     - get input state for both bolt sensors
-    - determine bolt position from them 
+    - determine bolt position from them
 */
 static BoltState SENSORS_DetermineCurrentBoltState(void)
 {
@@ -109,7 +109,7 @@ bool SENSORS_UpdateLockState(void)
     {
 
     AcceptedBoltState = CurrentBoltState;
-    
+
 
     if (AcceptedBoltState == BOLT_LOCKED) {
         LOG_Write(LOG_INFO, "SENSOR", "Bolt locked");
@@ -157,7 +157,7 @@ bool SENSORS_UpdateDoorState(void)
     {
 
     AcceptedDoorState = CurrentDoorState;
-       
+
     if (AcceptedDoorState == DOOR_CLOSED) {
         LOG_Write(LOG_INFO, "SENSOR", "Door closed");
     }
