@@ -1,6 +1,6 @@
 # STM32 Access Controller - Development milestones
 
-I built this project step by step to learn embedded software development. These milestones describe the main steps I followed and the remaining work for the first version.
+I built this project step by step to learn embedded software development. These milestones describe the main steps I followed to finish the first version.
 
 Some steps overlapped. I organized the code into modules during development and started building the application state machine alongside the RFID and OLED work.
 
@@ -65,6 +65,8 @@ Some steps overlapped. I organized the code into modules during development and 
 - Added interrupt-based reception and a receive ring buffer.
 - Used UART messages to observe program behaviour.
 
+The final firmware only sends over UART. Reception and the ring buffer were removed during the cleanup and are preserved at the tag `learning-exercises`.
+
 ### M10 - Servo, timer and PWM
 
 - Configured TIM2 channel 3 for the MG90S servo.
@@ -111,6 +113,7 @@ The application state machine was developed alongside this work, so the reader c
 - Used `static`, `const`, enums and structs as they became useful in the project.
 
 This structure grew during the earlier milestones. It was not a separate step after all drivers were finished.
+The button module belonged to the GPIO and interrupt exercises and was removed during the cleanup.
 
 ### M16 - State machine and system integration
 
@@ -119,49 +122,44 @@ This structure grew during the earlier milestones. It was not a separate step af
 - Added the access-attempt counter, blocking intervals and movement timeouts.
 - Built and tested the normal unlocking and locking flow while integrating the components.
 
-This work overlapped with M13 and M14. Error handling was added along the way, but was not completed consistently across the whole application.
+This work overlapped with M13 and M14. Error handling was added along the way and completed in M17.
 
 ## Testing during development
 
 Testing was mainly manual and done during development. I used the real hardware, the debugger and UART output to check behaviour. I changed the code and tested it again until the tested function behaved as intended.
 
-I considered possible errors while writing the code and added checks for them. Towards the end, the focus was on getting the complete system working, so some error checks and responses are still incomplete.
+I considered possible errors while writing the code and added checks for them. Towards the end, the focus was on getting the complete system working. The remaining error checks were completed in M17.
 
-## Remaining work for the first version
+## Finishing the first version
 
-### M17 - Finish the main error paths
+### M17 - Cleanup and error handling
 
-- Pass initialization and important driver errors to the application.
-- Handle the application return values in the main loop.
-- Define a consistent response to contradictory sensors and an exceeded bolt movement time.
-- Make the error visible through UART or the display and provide a clear way to restart.
+- Removed the learning exercises from `main.c` and kept them at the tag `learning-exercises`.
+- Built the own code with `-Wall -Wextra` and removed all warnings.
+- Handled all faults in one function: stop the servo, store and log the cause, show "ERROR" on the display.
+- Made the fault state latched, so the system only leaves it after a reset.
+- Defined clear return values for the RFID detection and stored the detailed reason of a failed read separately.
+- Handled disturbed card responses inside the driver as a new read attempt instead of an error.
+- Never move the bolt out while the door is open, and always allow moving it back.
+- Checked the return values of the driver functions, including the start of the servo PWM.
+- Skipped display updates if the display failed to initialize, so the system keeps running without it.
+- Added logs for state changes, sensor changes, access attempts and blocking.
+- Limited the block interval to a maximum of 5 minutes.
 
 ### M18 - Final manual tests
 
-Check the main functions and important error cases on the assembled hardware. Record the expected and actual result for each test.
-
-| Test | Expected behaviour |
-| --- | --- |
-| Authorized card, opening and closing the door | Complete unlocking and locking sequence |
-| Unknown card and repeated failed attempts | Access denied, blocking interval and release afterwards |
-| Bolt does not reach its target position | Movement timeout is detected and handled |
-| Both bolt sensors active | Contradictory state is detected and handled |
-| RFID initialization reports an error | Application does not enter normal operation as if initialization succeeded |
-| Reset with different door and bolt positions | Initialization follows the intended behaviour for the sensor state |
-
-Also check repeated card presentation and what happens when a card stays in the reading area. Record any difference from the access-attempt definition in the requirements.
-
-After a code change, repeat the affected tests and the main access-control flow.
+- Tested the main functions and the important error cases on the assembled hardware.
+- Used the UART log and the display to compare the expected and the actual behaviour.
+- Recorded the test cases and results in [docs/requirements.md](docs/requirements.md), section 8.
 
 ### M19 - Documentation and portfolio
 
-- Finish the README in simple English.
-- Describe the hardware, wiring and development environment.
-- Explain the main modules and distinguish my own code from generated code and libraries.
-- Check the implementation against the requirements and document remaining differences and limitations.
-- Keep the architecture and state diagrams consistent with the described system.
-- Record the final test results and add photos or a short demo video.
-- Clean up the repository and remove unused experiment code and build files where needed.
+- Finished the README with hardware, build steps, project structure and known limitations.
+- Distinguished my own code from generated code and libraries.
+- Checked the implementation against the requirements and documented the differences.
+- Added the architecture, code style and display state documents.
+- Added photos of the setup.
+- Added the MIT license for my own code.
 
 ### M20 - Explaining the project
 
@@ -170,14 +168,17 @@ After a code change, repeat the affected tests and the main access-control flow.
 - Explain the RFID communication, PWM, interrupts, sensors and state machine.
 - Describe examples of debugging, the tests performed and the project's limitations.
 
-The first version should have a repeatable normal operating flow, a defined response to the main error cases and documentation that matches what was implemented and tested.
-
 ## Possible later extensions
 
 These are optional follow-up tasks after the first version:
 
+- Count a new access attempt only after the card was removed from the reader.
+- Evaluate the MFRC522 error register (CRC, collision, parity).
+- Re-initialize the RFID reader automatically after a communication error.
+- Add an alarm sound when the door stays open too long.
+- Render display texts from a string instead of sending each character separately, and add the missing texts (remaining block time, countdown before locking).
+- Speed up display updates (I²C fast mode with 400 kHz, or non-blocking transfers with DMA) and start the servo movement timer after the display update.
 - Store and change the whitelist in Flash without rebuilding the firmware.
 - Add a watchdog and test the restart behaviour.
 - Add automated tests for the whitelist, sensor logic and state transitions.
 - Extend RFID reading to 7-byte and 10-byte UIDs.
-- Improve communication error handling, recovery and longer-term testing.
