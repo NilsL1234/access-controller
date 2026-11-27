@@ -380,12 +380,6 @@ ACCESS_CONTROLLER_Status ACCESS_CONTROLLER_Run(void)
                 SSD1306_DisplayTryBlocked();
             }
 
-            // in case the door gets opened again during the LOCKING state
-            if (SENSORS_GetDoorState() == DOOR_OPEN) {
-                ChangeState(UNLOCKING);
-                return ACCESS_CONTROLLER_OK;
-            }
-
             // UID Validation:
             if((HAL_GetTick() - UIDValidationStartTick) >= UIDValidationInterval)
             {
