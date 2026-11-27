@@ -13,12 +13,12 @@
             "interface": "swd",
             "device": "STM32F446RE",
 
-            "gdbPath": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/gnu-gdb-for-stm32/14.3.1+st.2/bin/arm-none-eabi-gdb",
-            "objdumpPath": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/gnu-tools-for-stm32/14.3.1+st.2/bin/arm-none-eabi-objdump",
+            "gdbPath": "${userHome}/Library/Application Support/stm32cube/bundles/gnu-gdb-for-stm32/14.3.1+st.2/bin/arm-none-eabi-gdb",
+            "objdumpPath": "${userHome}/Library/Application Support/stm32cube/bundles/gnu-tools-for-stm32/14.3.1+st.2/bin/arm-none-eabi-objdump",
 
-            "serverpath": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/stlink-gdbserver/7.14.0+st.2/bin/ST-LINK_gdbserver",
+            "serverpath": "${userHome}/Library/Application Support/stm32cube/bundles/stlink-gdbserver/7.14.0+st.2/bin/ST-LINK_gdbserver",
 
-            "stm32cubeprogrammer": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/programmer/2.23.0/bin",
+            "stm32cubeprogrammer": "${userHome}/Library/Application Support/stm32cube/bundles/programmer/2.23.0/bin",
 
             "runToEntryPoint": "main",
             "showDevDebugOutput": "both"

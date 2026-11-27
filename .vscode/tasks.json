@@ -4,7 +4,7 @@
         {
             "label": "Flash STM32",
             "type": "process",
-            "command": "/Users/nilslaeser/Library/Application Support/stm32cube/bundles/programmer/2.23.0/bin/STM32_Programmer_CLI",
+            "command": "${userHome}/Library/Application Support/stm32cube/bundles/programmer/2.23.0/bin/STM32_Programmer_CLI",
             "args": [
                 "-c",
                 "port=SWD",
