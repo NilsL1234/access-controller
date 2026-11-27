@@ -6,7 +6,7 @@
 
 
 static const uint32_t DEBOUNCE_TIME_INTERVAL_BOLT = 20U;
-static const uint32_t DEBOUNCE_TIME_INTERVAL_DOOR = 500U;
+static const uint32_t DEBOUNCE_TIME_INTERVAL_DOOR = 50U;
 
 static uint32_t StartTimeDebounceBolt = 0U;
 static uint32_t StartTimeDebounceDoor = 0U;
