@@ -2,12 +2,15 @@
 
 RFID-based access control on an STM32 microcontroller.
 
-The demonstrator is a small case that is locked with a bolt. It can be unlocked with an authorized RFID card,
+The demonstrator is a small case that is locked with a bolt. It can be unlocked with an authorized RFID card:
 if the card's UID matches an entry in the whitelist, an MG90S servo moves the bolt back and the door can be opened.
 Two micro switches detect the position of the bolt, a reed contact detects whether the door is open or closed.
 An OLED display shows the current state, and status messages are sent over UART.
 
-<!-- Photo of the setup: docs/images/setup.jpg -->
+<p align="center">
+  <img src="docs/images/unlock.gif" alt="Access controller demonstrator: unlocking and automatic locking" width="720"><br>
+  <em>Demonstrator: an authorized card unlocks the bolt, the door is opened and closed, and the bolt locks again</em>
+</p>
 
 ## Features
 
@@ -27,6 +30,11 @@ An OLED display shows the current state, and status messages are sent over UART.
 - SSD1306 OLED, 128×64, I²C
 - MG90S servo with external 5 V supply
 - 2 micro switches (bolt end positions), 1 reed contact (door)
+
+<p align="center">
+  <img src="docs/images/electronics.jpeg" alt="Electronics compartment" width="720"><br>
+  <em>Electronics compartment with NUCLEO board, RFID reader and wiring</em>
+</p>
 
 Pins, wiring and power supply: [docs/hardwarelist.md](docs/hardwarelist.md)
 
@@ -60,7 +68,7 @@ More details: [docs/architecture.md](docs/architecture.md), [docs/requirements.m
 | `firmware/Core/Src/main.c` | CubeMX initialization, own code in the `USER CODE` blocks |
 | `firmware/Drivers` | ST HAL, CMSIS and board support (not my own code) |
 | `firmware/firmware.ioc` | STM32CubeMX configuration |
-| `docs/` | requirements, architecture, hardware, code style, datasheets |
+| `docs/` | requirements, architecture, hardware, display states, code style, state diagram, images |
 | `milestones.md` | development steps |
 
 The application logic and the device drivers for the RFID reader and the display are my own code.
@@ -195,7 +203,7 @@ The development steps are described in [milestones.md](milestones.md).
 
 I used AI mainly to learn. For each topic, the AI explained the concepts and I asked questions until I understood them. Then I did small exercises on my own to practise.
 
-I developed the firmware logic and the drivers myself. I only asked the AI for help when I could not find a bug on my own. The exception are the character bitmaps for the OLED, which were a repetitive task after I had done the first characters myself.
+I developed the firmware logic and the drivers myself. I only asked the AI for help when I could not find a bug on my own. The exception is the character bitmaps for the OLED, which were a repetitive task after I had done the first characters myself.
 
 At the end, when the system was already working, I used an AI agent for code reviews, cleanup and drafting the documentation, which I reviewed and corrected. This was also a way to gain more experience working with AI agents in a real project.
 
